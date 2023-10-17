@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+set -e
+cd "$(dirname "$0")"
+. ./config
+export PATH="$OUTPUT_DIR/bin:$PATH"
+
+BUILD_DIR=".build/runtimes"
+(test -d $BUILD_DIR && rm -rf $BUILD_DIR) || true
+mkdir -p $BUILD_DIR && cd $BUILD_DIR
+
+FLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth -mbranch-protection=pauthabi"
+
+rm -rf "$TARGET_PREFIX/include/c++" || true
+
+"$CMAKE_WRAPPER" $CROSS_TARGET \
+  -S $LLVM_SOURCE_DIR/runtimes \
+  -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
+  -DCMAKE_INSTALL_PREFIX="$TARGET_PREFIX" \
+  -DCMAKE_C_COMPILER_WORKS=1 \
+  -DCMAKE_CXX_COMPILER_WORKS=1 \
+  -DCMAKE_VERBOSE_MAKEFILE=ON \
+  -DLIBCXX_ENABLE_SHARED=ON \
+  -DLIBCXX_ENABLE_STATIC=ON \
+  -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=OFF \
+  -DLIBCXX_CXX_ABI=libcxxabi \
+  -DLIBCXX_INCLUDE_TESTS=OFF \
+  -DLIBCXX_INCLUDE_BENCHMARKS=OFF \
+  -DLIBCXXABI_ENABLE_SHARED=ON \
+  -DLIBCXXABI_ENABLE_STATIC=ON \
+  -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
+  -DLIBCXXABI_USE_COMPILER_RT=ON \
+  -DLIBUNWIND_ENABLE_STATIC=ON \
+  -DLIBUNWIND_ENABLE_SHARED=ON \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DLIBCXX_HAS_MUSL_LIBC=ON \
+  -DCMAKE_CXX_FLAGS="$FLAGS" \
+  -DCMAKE_C_FLAGS="$FLAGS" \
+  -DCMAKE_ASM_FLAGS="$FLAGS" \
+  $LIBCXX_CMAKE_FLAGS
+
+cmake --build . --target cxx cxxabi unwind generate-cxx-headers -- -j$CPU_COUNT
+cmake --build . --target install -- -j$CPU_COUNT

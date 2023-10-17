@@ -1,0 +1,17 @@
+#!/bin/bash
+
+export CROSS_TARGET="aarch64-linux-musl"
+export KERNEL_ARCH=arm64
+export OUTPUT_DIR="$(pwd)/output"
+export CCACHE_DIR="$(pwd)/ccache"
+export CMAKE_WRAPPER="$(pwd)/cmake.sh"
+export CPU_COUNT="$(nproc)"
+
+export LINUX_KERNEL_VERSION=6.1.58
+export LLVM_SOURCE_DIR=/path/to/llvm-project
+export MUSL_SOURCE_DIR=/path/to/musl
+export TARGET_PREFIX="$OUTPUT_DIR/$CROSS_TARGET/usr"
+
+export BUILD_HOST=Linux
+export CROSS_HOST=Linux
+
