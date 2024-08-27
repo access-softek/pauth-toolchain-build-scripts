@@ -10,7 +10,7 @@ mkdir -p $BUILD_DIR && cd $BUILD_DIR
 
 COMPILER_RT_INSTALL_PREFIX="$("$OUTPUT_DIR/bin/clang" --print-resource-dir)"
 COMPILER_RT_CMAKE_FLAGS=""
-COMPILER_RT_CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth -mbranch-protection=pauthabi"
+COMPILER_RT_CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
 
 if [ -z "$COMPILER_RT_FULL_BUILD" ]; then
   COMPILER_RT_CMAKE_FLAGS="$COMPILER_RT_CMAKE_FLAGS -DCOMPILER_RT_EXCLUDE_ATOMIC_BUILTIN=OFF"
