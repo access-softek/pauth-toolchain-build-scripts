@@ -11,6 +11,8 @@ MUSL_BRANCH=dkovalev/pauth-release-19.x
 LLVM_SHA=b7ed52fbdfe68555de5b19b37cdcbbe84637853f
 MUSL_SHA=1268c66ff4bccb1ad10e4bcf7969703e691669b3
 
+LINUX_KERNEL_VERSION=6.1.58
+
 docker="docker"
 #docker="sudo docker"
 
@@ -43,6 +45,10 @@ fetch_sources() {
   mkdir -p "$ROOT/src"
   test -d "$ROOT/src/llvm" || git clone --depth 1 -b "$LLVM_BRANCH" "$llvm_repo" "$ROOT/src/llvm"
   test -d "$ROOT/src/musl" || git clone --depth 1 -b "$MUSL_BRANCH" "$musl_repo" "$ROOT/src/musl"
+
+  local SOURCE_TARBALL=linux-$LINUX_KERNEL_VERSION.tar.xz
+  curl -sSL "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_KERNEL_VERSION%%.*}.x/$SOURCE_TARBALL" \
+       -o "$ROOT/src/$SOURCE_TARBALL"
 
   check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
