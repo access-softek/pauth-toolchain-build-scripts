@@ -8,7 +8,7 @@ BUILD_DIR=".build/runtimes"
 (test -d $BUILD_DIR && rm -rf $BUILD_DIR) || true
 mkdir -p $BUILD_DIR && cd $BUILD_DIR
 
-FLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth -mbranch-protection=pauthabi"
+FLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
 
 rm -rf "$TARGET_PREFIX/include/c++" || true
 
