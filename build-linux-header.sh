@@ -7,8 +7,10 @@ SOURCE_TARBALL=linux-$LINUX_KERNEL_VERSION.tar.xz
 SOURCE_DIR=".build"
 mkdir -p "$SOURCE_DIR"
 
-if [ ! -f "$SOURCE_DIR/$SOURCE_TARBALL" ]; then
-    curl -sSL "https://mirrors.ustc.edu.cn/kernel.org/linux/kernel/v${LINUX_KERNEL_VERSION%%.*}.x/$SOURCE_TARBALL" -o "$SOURCE_DIR/$SOURCE_TARBALL.tmp"
+if [ ! -f "$SOURCE_DIR/$SOURCE_TARBALL" ] && [ -f "/src/$SOURCE_TARBALL" ]; then
+    cp "/src/$SOURCE_TARBALL" "$SOURCE_DIR/$SOURCE_TARBALL"
+elif [ ! -f "$SOURCE_DIR/$SOURCE_TARBALL" ]; then
+    curl -sSL "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_KERNEL_VERSION%%.*}.x/$SOURCE_TARBALL" -o "$SOURCE_DIR/$SOURCE_TARBALL.tmp"
     mv "$SOURCE_DIR/$SOURCE_TARBALL.tmp" "$SOURCE_DIR/$SOURCE_TARBALL"
 fi
 BUILD_DIR=".build/linux-kernel"
