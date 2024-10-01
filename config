@@ -1,18 +1,26 @@
-#!/bin/bash
+# Default build configuration (to be sourced by the build scripts).
+#
+# If build is started by the top-level build-all.sh, then it is build-all.sh
+# which exports the variables for itself and its child processes - in that case,
+# child processes do not re-set the variables, so that some variables can be
+# overriden throughout the execution of build-all.sh.
 
-export CROSS_TARGET="aarch64-linux-pauthtest"
-export KERNEL_ARCH=arm64
-test "x$OUTPUT_DIR" = "x" && export OUTPUT_DIR="$(pwd)/output"
-export CCACHE_DIR="$(pwd)/ccache"
-export CMAKE_WRAPPER="$(pwd)/cmake.sh"
-export CPU_COUNT="$(nproc)"
+if [ "x$BUILD_CONFIG_INCLUDED" = "x" ]; then
+  export CROSS_TARGET="aarch64-linux-pauthtest"
+  export KERNEL_ARCH=arm64
+  test "x$OUTPUT_DIR" = "x" && export OUTPUT_DIR="$(pwd)/output"
+  export CCACHE_DIR="$(pwd)/ccache"
+  export CMAKE_WRAPPER="$(pwd)/cmake.sh"
+  export CPU_COUNT="$(nproc)"
 
-export LINUX_KERNEL_VERSION=6.1.58
-export LLVM_SOURCE_DIR=/src/llvm # expected by docker.sh
-export MUSL_SOURCE_DIR=/src/musl # expected by docker.sh
-export TARGET_PREFIX="$OUTPUT_DIR/$CROSS_TARGET/usr"
+  export LINUX_KERNEL_VERSION=6.1.58
+  export LLVM_SOURCE_DIR=/src/llvm # expected by docker.sh
+  export MUSL_SOURCE_DIR=/src/musl # expected by docker.sh
+  export TARGET_PREFIX="$OUTPUT_DIR/$CROSS_TARGET/usr"
 
-export BUILD_HOST=Linux
-export CROSS_HOST=Linux
+  export BUILD_HOST=Linux
+  export CROSS_HOST=Linux
 
-export LLVM_MAJOR_VERSION=19
+  export LLVM_MAJOR_VERSION=19
+  export BUILD_CONFIG_INCLUDED=1
+fi
