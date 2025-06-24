@@ -21,6 +21,5 @@ if [ "x$BUILD_CONFIG_INCLUDED" = "x" ]; then
   export BUILD_HOST=Linux
   export CROSS_HOST=Linux
 
-  export LLVM_MAJOR_VERSION=19
   export BUILD_CONFIG_INCLUDED=1
 fi

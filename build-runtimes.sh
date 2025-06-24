@@ -9,6 +9,7 @@ BUILD_DIR=".build/runtimes"
 mkdir -p $BUILD_DIR && cd $BUILD_DIR
 
 FLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
+FLAGS="$FLAGS $RT_EXTRA_FLAGS"
 
 rm -rf "$TARGET_PREFIX/include/c++" || true
 

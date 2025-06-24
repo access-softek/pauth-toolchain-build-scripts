@@ -1,0 +1,20 @@
+# LLVM version configuration (to be sourced by the build scripts).
+#
+# This file is intended to contain the variables that have to be updated when
+# switching to a different LLVM branch, not to scatter the changes across
+# various scripts in the repository.
+
+# Branches being checked out by "docker.sh sources".
+LLVM_BRANCH=pauth
+MUSL_BRANCH=dkovalev/pauth-release-19.x
+
+# Expected hashes at these branches.
+LLVM_SHA=b7ed52fbdfe68555de5b19b37cdcbbe84637853f
+MUSL_SHA=1268c66ff4bccb1ad10e4bcf7969703e691669b3
+
+# LLVM version number to use in paths.
+LLVM_MAJOR_VERSION=19
+
+# Extra flags to build runtimes with.
+EXTRA_FLAGS_PAUTHTEST=""
+EXTRA_FLAGS_MUSL=""
