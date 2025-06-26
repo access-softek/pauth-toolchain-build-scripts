@@ -4,12 +4,7 @@ ROOT="$(dirname "$0")"
 ROOT="$(realpath "$ROOT")"
 cd "$ROOT"
 
-# Branches being checked out by "docker.sh sources"
-LLVM_BRANCH=pauth
-MUSL_BRANCH=dkovalev/pauth-release-19.x
-# Expected hashes at these branches
-LLVM_SHA=b7ed52fbdfe68555de5b19b37cdcbbe84637853f
-MUSL_SHA=1268c66ff4bccb1ad10e4bcf7969703e691669b3
+. ./llvm-branch-config
 
 LINUX_KERNEL_VERSION=6.1.58
 
