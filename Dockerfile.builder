@@ -20,4 +20,3 @@ RUN    apt-get update \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 COPY build-*.sh config llvm-branch-config cmake.sh /scripts/
-COPY toolchain-wrapper          /scripts/toolchain-wrapper/
