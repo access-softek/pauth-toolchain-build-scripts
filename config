@@ -10,7 +10,6 @@ if [ "x$BUILD_CONFIG_INCLUDED" = "x" ]; then
   export KERNEL_ARCH=arm64
   test "x$OUTPUT_DIR" = "x" && export OUTPUT_DIR="$(pwd)/output"
   export CCACHE_DIR="$(pwd)/ccache"
-  export CMAKE_WRAPPER="$(pwd)/cmake.sh"
   export CPU_COUNT="$(nproc)"
 
   export LINUX_KERNEL_VERSION=6.1.58

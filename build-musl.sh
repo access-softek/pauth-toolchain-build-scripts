@@ -8,28 +8,25 @@ BUILD_DIR=".build/musl"
 rm -rf $BUILD_DIR
 mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR"
 
-export CFLAGS="-O0 -fno-ptrauth-function-pointer-type-discrimination -fdebug-default-version=4 -gdwarf-4 -DMUSL_EXPERIMENTAL_PAC=1 -march=armv8.3-a+pauth -isystem$OUTPUT_DIR/lib/clang/$LLVM_MAJOR_VERSION/include"
+CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
+CFLAGS="$CFLAGS -O0 -isystem$OUTPUT_DIR/lib/clang/$LLVM_MAJOR_VERSION/include"
 export CFLAGS="$CFLAGS $RT_EXTRA_FLAGS"
 
-if [ ! -n "$LIBC_STARTFILE_STAGE" ]; then
-  export LDFLAGS="$($OUTPUT_DIR/bin/$CROSS_TARGET-clang -print-libgcc-file-name -rtlib=compiler-rt)"
-fi
+export CROSS_COMPILE="${OUTPUT_DIR}/bin/${CROSS_TARGET}-"
+export LIBCC="$($OUTPUT_DIR/bin/$CROSS_TARGET-clang -print-libgcc-file-name -rtlib=compiler-rt)"
 
 $MUSL_SOURCE_DIR/configure \
-  $CONFIGURE_ARGS \
-  --host=$CROSS_TARGET \
-  --target=$CROSS_TARGET \
-  --prefix=/ \
+  --prefix="$TARGET_PREFIX" \
   --disable-wrapper \
   --disable-optimize \
   --enable-debug
 
 if [ -n "$LIBC_STARTFILE_STAGE" ]; then
   echo "Install MUSL header and start files for target $CROSS_TARGET"
-  make DESTDIR="$TARGET_PREFIX" install-headers -j$CPU_COUNT
+  make install-headers -j$CPU_COUNT
 else
   echo "Install MUSL for target $CROSS_TARGET"
-  make DESTDIR="$TARGET_PREFIX" install -j$CPU_COUNT
+  make install -j$CPU_COUNT
   # Convert /lib/ld-* symlinks to relative paths
   for f in `find "$TARGET_PREFIX/lib" -type l -name "ld-musl*"`
   do
