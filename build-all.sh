@@ -9,6 +9,7 @@ export LLVM_MAJOR_VERSION
 ./build-llvm.sh
 
 build_target_libs() {
+  export TARGET_PREFIX="$INSTALL_DIR/$CROSS_TARGET/usr"
   ./build-wrapper.sh
   ./build-linux-header.sh
   LIBC_STARTFILE_STAGE=1 ./build-musl.sh
@@ -19,13 +20,13 @@ build_target_libs() {
 }
 
 for environment in pauthtest musl; do
-cat > $OUTPUT_DIR/bin/aarch64-unknown-linux-$environment-clang.cfg <<EOF
---sysroot $OUTPUT_DIR/aarch64-linux-$environment
+cat > $INSTALL_DIR/bin/aarch64-unknown-linux-$environment-clang.cfg <<EOF
+--sysroot $INSTALL_DIR/aarch64-linux-$environment
 -rtlib=compiler-rt
 -fuse-ld=lld
 EOF
-cat > $OUTPUT_DIR/bin/aarch64-unknown-linux-$environment-clang++.cfg <<EOF
---sysroot $OUTPUT_DIR/aarch64-linux-$environment
+cat > $INSTALL_DIR/bin/aarch64-unknown-linux-$environment-clang++.cfg <<EOF
+--sysroot $INSTALL_DIR/aarch64-linux-$environment
 -rtlib=compiler-rt
 --driver-mode=g++
 -stdlib=libc++
@@ -33,10 +34,10 @@ cat > $OUTPUT_DIR/bin/aarch64-unknown-linux-$environment-clang++.cfg <<EOF
 EOF
 done
 
+export CROSS_TARGET="aarch64-linux-pauthtest"
 export RT_EXTRA_FLAGS="$EXTRA_FLAGS_PAUTHTEST"
 build_target_libs
 
 export CROSS_TARGET="aarch64-linux-musl"
-export TARGET_PREFIX="$OUTPUT_DIR/$CROSS_TARGET/usr"
 export RT_EXTRA_FLAGS="$EXTRA_FLAGS_MUSL"
 build_target_libs

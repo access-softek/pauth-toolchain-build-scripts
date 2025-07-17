@@ -3,7 +3,7 @@ set -e
 cd "$(dirname "$0")"
 . ./config
 
-cd "$OUTPUT_DIR/bin"
+cd "$INSTALL_DIR/bin"
 
 clang_real="$(readlink clang)"
 for file in clang clang++ gcc g++ cc c++ as; do

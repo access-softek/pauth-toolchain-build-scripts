@@ -2,13 +2,13 @@
 set -e
 cd "$(dirname "$0")"
 . ./config
-export PATH="$OUTPUT_DIR/bin:$PATH"
+export PATH="$INSTALL_DIR/bin:$PATH"
 
 BUILD_DIR=".build/compiler-rt"
 (test -d $BUILD_DIR && rm -rf $BUILD_DIR) || true
 mkdir -p $BUILD_DIR && cd $BUILD_DIR
 
-COMPILER_RT_INSTALL_PREFIX="$("$OUTPUT_DIR/bin/clang" --print-resource-dir)"
+COMPILER_RT_INSTALL_PREFIX="$("$INSTALL_DIR/bin/clang" --print-resource-dir)"
 COMPILER_RT_CMAKE_FLAGS=""
 
 if [ -z "$COMPILER_RT_FULL_BUILD" ]; then
@@ -22,14 +22,12 @@ else
   COMPILER_RT_CMAKE_FLAGS="$COMPILER_RT_CMAKE_FLAGS -DCOMPILER_RT_USE_BUILTINS_LIBRARY=TRUE"
 fi
 
-COMPILER_RT_SRC_DIR=$LLVM_SOURCE_DIR/compiler-rt
-
 cmake \
-  -DTOOLCHAIN_BUILD_OUTPUT_DIR="$OUTPUT_DIR" \
+  -DTOOLCHAIN_BUILD_INSTALL_DIR="$INSTALL_DIR" \
   -DTOOLCHAIN_BUILD_TARGET="$CROSS_TARGET" \
   -DTOOLCHAIN_BUILD_EXTRA_RUNTIME_FLAGS="$RT_EXTRA_FLAGS" \
   --toolchain ../../toolchain-file.cmake \
-  -S $COMPILER_RT_SRC_DIR \
+  -S $LLVM_SOURCE_DIR/compiler-rt \
   -DCMAKE_INSTALL_PREFIX="$COMPILER_RT_INSTALL_PREFIX" \
   -DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON \
   -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=ON \
@@ -37,5 +35,5 @@ cmake \
 
 cmake --build . --target install -- -j$CPU_COUNT
 
-normalized_triple=$("$OUTPUT_DIR/bin/$CROSS_TARGET-clang" --print-target-triple)
+normalized_triple=$("$INSTALL_DIR/bin/$CROSS_TARGET-clang" --print-target-triple)
 ln -sfn $CROSS_TARGET "$COMPILER_RT_INSTALL_PREFIX/lib/$normalized_triple"

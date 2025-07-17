@@ -3,17 +3,17 @@ set -e
 cd "$(dirname "$0")"
 . ./config
 
-export PATH="$OUTPUT_DIR/bin:$PATH"
+export PATH="$INSTALL_DIR/bin:$PATH"
 BUILD_DIR=".build/musl"
 rm -rf $BUILD_DIR
 mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR"
 
 CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
-CFLAGS="$CFLAGS -O0 -isystem$OUTPUT_DIR/lib/clang/$LLVM_MAJOR_VERSION/include"
+CFLAGS="$CFLAGS -O0 -isystem $INSTALL_DIR/lib/clang/$LLVM_MAJOR_VERSION/include"
 export CFLAGS="$CFLAGS $RT_EXTRA_FLAGS"
 
-export CROSS_COMPILE="${OUTPUT_DIR}/bin/${CROSS_TARGET}-"
-export LIBCC="$($OUTPUT_DIR/bin/$CROSS_TARGET-clang -print-libgcc-file-name -rtlib=compiler-rt)"
+export CROSS_COMPILE="${INSTALL_DIR}/bin/${CROSS_TARGET}-"
+export LIBCC="$($INSTALL_DIR/bin/$CROSS_TARGET-clang -print-libgcc-file-name -rtlib=compiler-rt)"
 
 $MUSL_SOURCE_DIR/configure \
   --prefix="$TARGET_PREFIX" \

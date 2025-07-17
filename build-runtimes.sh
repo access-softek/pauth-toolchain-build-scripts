@@ -2,7 +2,7 @@
 set -e
 cd "$(dirname "$0")"
 . ./config
-export PATH="$OUTPUT_DIR/bin:$PATH"
+export PATH="$INSTALL_DIR/bin:$PATH"
 
 BUILD_DIR=".build/runtimes"
 (test -d $BUILD_DIR && rm -rf $BUILD_DIR) || true
@@ -11,7 +11,7 @@ mkdir -p $BUILD_DIR && cd $BUILD_DIR
 rm -rf "$TARGET_PREFIX/include/c++" || true
 
 cmake \
-  -DTOOLCHAIN_BUILD_OUTPUT_DIR="$OUTPUT_DIR" \
+  -DTOOLCHAIN_BUILD_INSTALL_DIR="$INSTALL_DIR" \
   -DTOOLCHAIN_BUILD_TARGET="$CROSS_TARGET" \
   -DTOOLCHAIN_BUILD_EXTRA_RUNTIME_FLAGS="$RT_EXTRA_FLAGS" \
   --toolchain ../../toolchain-file.cmake \

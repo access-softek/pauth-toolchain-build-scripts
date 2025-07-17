@@ -4,12 +4,8 @@ ROOT="$(dirname "$0")"
 ROOT="$(realpath "$ROOT")"
 cd "$ROOT"
 
+. ./config
 . ./llvm-branch-config
-
-LINUX_KERNEL_VERSION=6.1.58
-
-docker="docker"
-#docker="sudo docker"
 
 check_repo_sha() {
   local repo_path="$1"
@@ -53,12 +49,12 @@ build_toolchain() {
   check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
 
-  $docker build -t pauth-toolchain-builder -f Dockerfile.builder "$ROOT"
-  $docker run -ti --rm \
-      --volume "$ROOT/output:/scripts/output:rw" \
-      --volume "$ROOT/ccache:/scripts/ccache:rw" \
-      --volume "$ROOT/src:/src:ro" \
-      --tmpfs "/opt/llvm-pauth:rw,exec,size=2G" \
+  $DOCKER_CMD build -t pauth-toolchain-builder -f Dockerfile.builder "$ROOT"
+  $DOCKER_CMD run -ti --rm \
+      --volume "$ROOT/output:$OUTPUT_DIR:rw" \
+      --volume "$ROOT/ccache:$CCACHE_DIR:rw" \
+      --volume "$ROOT/src:$SRC_DIR:ro" \
+      --tmpfs "$INSTALL_DIR:rw,exec,size=2G" \
       --tmpfs "/scripts/.build:rw,exec,size=5G" \
       pauth-toolchain-builder /scripts/build-in-docker.sh
 }

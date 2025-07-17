@@ -3,6 +3,7 @@ set -e
 cd "$(dirname "$0")"
 . ./config
 
+KERNEL_ARCH=arm64
 SOURCE_TARBALL=linux-$LINUX_KERNEL_VERSION.tar.xz
 SOURCE_DIR=".build"
 mkdir -p "$SOURCE_DIR"
