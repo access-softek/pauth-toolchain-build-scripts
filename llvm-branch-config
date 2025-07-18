@@ -12,9 +12,6 @@ MUSL_BRANCH=dkovalev/pauth-release-19.x
 LLVM_SHA=b7ed52fbdfe68555de5b19b37cdcbbe84637853f
 MUSL_SHA=1268c66ff4bccb1ad10e4bcf7969703e691669b3
 
-# LLVM version number to use in paths.
-LLVM_MAJOR_VERSION=19
-
 # Extra flags to build runtimes with.
 EXTRA_FLAGS_PAUTHTEST=""
 EXTRA_FLAGS_MUSL=""

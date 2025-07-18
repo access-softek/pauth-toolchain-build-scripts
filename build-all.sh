@@ -4,7 +4,6 @@ cd "$(dirname "$0")"
 . ./config
 
 . ./llvm-branch-config
-export LLVM_MAJOR_VERSION
 
 ./build-llvm.sh
 

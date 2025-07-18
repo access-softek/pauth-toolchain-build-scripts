@@ -8,12 +8,13 @@ BUILD_DIR=".build/musl"
 rm -rf $BUILD_DIR
 mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR"
 
-CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
-CFLAGS="$CFLAGS -O0 -isystem $INSTALL_DIR/lib/clang/$LLVM_MAJOR_VERSION/include"
-export CFLAGS="$CFLAGS $RT_EXTRA_FLAGS"
-
 export CROSS_COMPILE="${INSTALL_DIR}/bin/${CROSS_TARGET}-"
-export LIBCC="$($INSTALL_DIR/bin/$CROSS_TARGET-clang -print-libgcc-file-name -rtlib=compiler-rt)"
+export LIBCC="$(${CROSS_COMPILE}clang -print-libgcc-file-name -rtlib=compiler-rt)"
+
+resource_dir="$(${CROSS_COMPILE}clang -print-resource-dir)"
+CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
+CFLAGS="$CFLAGS -O0 -isystem ${resource_dir}/include"
+export CFLAGS="$CFLAGS $RT_EXTRA_FLAGS"
 
 $MUSL_SOURCE_DIR/configure \
   --prefix="$TARGET_PREFIX" \
