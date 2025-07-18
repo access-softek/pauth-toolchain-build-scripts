@@ -3,9 +3,10 @@ set -e
 cd "$(dirname "$0")"
 . ./config
 
-BUILD_DIR=".build/musl"
-rm -rf $BUILD_DIR
-mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR"
+BUILD_DIR="${BUILD_TMP}/musl-${CROSS_TARGET}"
+[ ! -n "$LIBC_STARTFILE_STAGE" ] && BUILD_DIR="$BUILD_DIR-full"
+mkdir "$BUILD_DIR"
+cd "$BUILD_DIR"
 
 export CROSS_COMPILE="${INSTALL_DIR}/bin/${CROSS_TARGET}-"
 export LIBCC="$(${CROSS_COMPILE}clang -print-libgcc-file-name -rtlib=compiler-rt)"

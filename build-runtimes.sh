@@ -3,7 +3,7 @@ set -e
 cd "$(dirname "$0")"
 . ./config
 
-BUILD_DIR=".build/runtimes-${CROSS_TARGET}"
+BUILD_DIR="$BUILD_TMP/runtimes-${CROSS_TARGET}"
 
 rm -rf "$TARGET_PREFIX/include/c++" || true
 

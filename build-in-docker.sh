@@ -1,17 +1,17 @@
 #!/usr/bin/env sh
-set -e
+set -xe
 cd "$(dirname "$0")"
+. ./config
 
-export OUTPUT_DIR=/opt/llvm-pauth
 ./build-all.sh
 
 # It is important to remove an old image, if any, as otherwise it would be
 # appended to instead of overwritten!
-rm -f /scripts/output/llvm-pauth.squashfs
+rm -f "$OUTPUT_DIR/llvm-pauth.squashfs"
 
 mksquashfs \
-    /opt/llvm-pauth \
-    /scripts/output/llvm-pauth.squashfs \
+    "$INSTALL_DIR" \
+    "$OUTPUT_DIR/llvm-pauth.squashfs" \
     -comp zstd \
     -no-xattrs \
     -all-root

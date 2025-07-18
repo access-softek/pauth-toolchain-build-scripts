@@ -3,7 +3,8 @@ set -e
 cd "$(dirname "$0")"
 . ./config
 
-BUILD_DIR=".build/llvm"
+BUILD_DIR="$BUILD_TMP/llvm"
+
 cmake \
   -S $LLVM_SOURCE_DIR/llvm \
   -B "$BUILD_DIR" \

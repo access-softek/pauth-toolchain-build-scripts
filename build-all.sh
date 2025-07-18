@@ -1,8 +1,7 @@
 #!/usr/bin/env sh
-set -e
+set -xe
 cd "$(dirname "$0")"
 . ./config
-
 . ./llvm-branch-config
 
 ./build-llvm.sh
