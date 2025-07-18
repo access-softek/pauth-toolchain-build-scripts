@@ -24,5 +24,7 @@ COPY build-*.sh \
      config \
      llvm-branch-config \
      toolchain-file.cmake \
+     llvm.cmake \
      compiler-rt-*.cmake \
+     runtimes.cmake \
      /scripts/
