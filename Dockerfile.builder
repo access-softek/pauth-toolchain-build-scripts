@@ -19,4 +19,10 @@ RUN    apt-get update \
         zip \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
-COPY build-*.sh config llvm-branch-config toolchain-file.cmake /scripts/
+
+COPY build-*.sh \
+     config \
+     llvm-branch-config \
+     toolchain-file.cmake \
+     compiler-rt-*.cmake \
+     /scripts/
