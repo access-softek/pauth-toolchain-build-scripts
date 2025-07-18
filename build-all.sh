@@ -20,9 +20,8 @@ build_target_libs() {
 }
 
 for environment in pauthtest musl; do
-cat > $INSTALL_DIR/bin/aarch64-unknown-linux-$environment.cfg <<EOF
---sysroot $INSTALL_DIR/aarch64-linux-$environment
-EOF
+  cfg_file="$INSTALL_DIR/bin/aarch64-unknown-linux-$environment.cfg"
+  echo "--sysroot <CFGDIR>/../aarch64-linux-$environment" > "$cfg_file"
 done
 
 export CROSS_TARGET="aarch64-linux-pauthtest"
