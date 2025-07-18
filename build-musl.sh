@@ -3,7 +3,6 @@ set -e
 cd "$(dirname "$0")"
 . ./config
 
-export PATH="$INSTALL_DIR/bin:$PATH"
 BUILD_DIR=".build/musl"
 rm -rf $BUILD_DIR
 mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR"
