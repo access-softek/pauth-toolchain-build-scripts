@@ -20,17 +20,8 @@ build_target_libs() {
 }
 
 for environment in pauthtest musl; do
-cat > $INSTALL_DIR/bin/aarch64-unknown-linux-$environment-clang.cfg <<EOF
+cat > $INSTALL_DIR/bin/aarch64-unknown-linux-$environment.cfg <<EOF
 --sysroot $INSTALL_DIR/aarch64-linux-$environment
--rtlib=compiler-rt
--fuse-ld=lld
-EOF
-cat > $INSTALL_DIR/bin/aarch64-unknown-linux-$environment-clang++.cfg <<EOF
---sysroot $INSTALL_DIR/aarch64-linux-$environment
--rtlib=compiler-rt
---driver-mode=g++
--stdlib=libc++
--fuse-ld=lld
 EOF
 done
 
