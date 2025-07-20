@@ -10,7 +10,6 @@ COMPILER_RT_INSTALL_PREFIX="$("$INSTALL_DIR/bin/clang" --print-resource-dir)"
 cmake \
   -DTOOLCHAIN_BUILD_INSTALL_DIR="$INSTALL_DIR" \
   -DTOOLCHAIN_BUILD_TARGET="$CROSS_TARGET" \
-  -DTOOLCHAIN_BUILD_EXTRA_RUNTIME_FLAGS="$RT_EXTRA_FLAGS" \
   --toolchain ../../toolchain-file.cmake \
   -S $LLVM_SOURCE_DIR/compiler-rt \
   -B "$BUILD_DIR" \

@@ -10,7 +10,6 @@ rm -rf "$TARGET_PREFIX/include/c++" || true
 cmake \
   -DTOOLCHAIN_BUILD_INSTALL_DIR="$INSTALL_DIR" \
   -DTOOLCHAIN_BUILD_TARGET="$CROSS_TARGET" \
-  -DTOOLCHAIN_BUILD_EXTRA_RUNTIME_FLAGS="$RT_EXTRA_FLAGS" \
   -DCMAKE_INSTALL_PREFIX="$TARGET_PREFIX" \
   --toolchain ../../toolchain-file.cmake \
   -S $LLVM_SOURCE_DIR/runtimes \

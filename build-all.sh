@@ -17,15 +17,17 @@ build_target_libs() {
   COMPILER_RT_BUILD=full ./build-compiler-rt.sh
 }
 
-for environment in pauthtest musl; do
-  cfg_file="$INSTALL_DIR/bin/aarch64-unknown-linux-$environment.cfg"
-  echo "--sysroot <CFGDIR>/../aarch64-linux-$environment" > "$cfg_file"
-done
+cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-pauthtest.cfg" <<EOF
+--sysroot <CFGDIR>/../aarch64-linux-pauthtest
+$EXTRA_FLAGS_PAUTHTEST
+EOF
+cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-musl.cfg" <<EOF
+--sysroot <CFGDIR>/../aarch64-linux-musl
+$EXTRA_FLAGS_MUSL
+EOF
 
 export CROSS_TARGET="aarch64-linux-pauthtest"
-export RT_EXTRA_FLAGS="$EXTRA_FLAGS_PAUTHTEST"
 build_target_libs
 
 export CROSS_TARGET="aarch64-linux-musl"
-export RT_EXTRA_FLAGS="$EXTRA_FLAGS_MUSL"
 build_target_libs
