@@ -21,6 +21,7 @@ RUN    apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY build-*.sh \
+     create-symlinks.sh \
      config \
      llvm-branch-config \
      toolchain-file.cmake \

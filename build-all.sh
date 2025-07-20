@@ -8,7 +8,7 @@ cd "$(dirname "$0")"
 
 build_target_libs() {
   export TARGET_PREFIX="$INSTALL_DIR/$CROSS_TARGET/usr"
-  ./build-wrapper.sh
+  ./create-symlinks.sh
   ./build-linux-header.sh
   LIBC_STARTFILE_STAGE=1 ./build-musl.sh
   COMPILER_RT_BUILD=builtins ./build-compiler-rt.sh
