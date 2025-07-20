@@ -1,0 +1,32 @@
+# Run tests on x86_64 host under QEMU user-mode emulation.
+# Strictly speaking, binfmt-misc handles running foreign executables under
+# qemu-user transparently, but timeit.py in llvm-test-suite suggests setting
+# this anyway, so that the host version of timeit is used).
+set(TEST_SUITE_USER_MODE_EMULATION ON CACHE BOOL "")
+
+set(allflags "")
+string(APPEND allflags "-target aarch64-linux-pauthtest -march=v8.3-a")
+# Optional: check that LR was authenticated correctly before performing tail calls.
+string(APPEND allflags " -mllvm --aarch64-authenticated-lr-check-method=xpac-hint")
+# Customize build options by passing -DCUSTOM_FLAGS="..." to CMake.
+string(APPEND allflags " ${CUSTOM_FLAGS}")
+
+set(cflags "")
+# Optional: test Global ISel.
+#string(APPEND cflags " -fglobal-isel")
+# Optional: use safer instruction sequences for jump-table lowering.
+string(APPEND cflags " -faarch64-jump-table-hardening")
+
+set(ldflags "")
+# Hardcode custom dynamic linker -- simplifies running under qemu-user.
+string(APPEND ldflags " -Wl,--dynamic-linker,/opt/llvm-pauth/aarch64-linux-pauthtest/usr/lib/libc.so")
+# Improves quality of analysis done by BOLT gadget scanner.
+string(APPEND ldflags " -Wl,--emit-relocs")
+
+set(CMAKE_C_FLAGS   "${allflags} ${cflags}" CACHE STRING "")
+set(CMAKE_CXX_FLAGS "${allflags} ${cflags}" CACHE STRING "")
+set(CMAKE_EXE_LINKER_FLAGS    "${allflags} ${ldflags}" CACHE STRING "")
+set(CMAKE_MODULE_LINKER_FLAGS "${allflags} ${ldflags}" CACHE STRING "")
+set(CMAKE_SHARED_LINKER_FLAGS "${allflags} ${ldflags}" CACHE STRING "")
+
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
