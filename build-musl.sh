@@ -9,7 +9,7 @@ mkdir "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 export CROSS_COMPILE="${INSTALL_DIR}/bin/${CROSS_TARGET}-"
-export LIBCC="$(${CROSS_COMPILE}clang -print-libgcc-file-name -rtlib=compiler-rt)"
+export LIBCC="$(${CROSS_COMPILE}clang -print-libgcc-file-name)"
 
 resource_dir="$(${CROSS_COMPILE}clang -print-resource-dir)"
 CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"

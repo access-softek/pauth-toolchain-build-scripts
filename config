@@ -8,6 +8,7 @@ OUTPUT_DIR=/scripts/output
 CCACHE_DIR=/scripts/ccache
 BUILD_TMP=/scripts/.build
 SRC_DIR=/src
+
 LLVM_SOURCE_DIR="$SRC_DIR/llvm"
 MUSL_SOURCE_DIR="$SRC_DIR/musl"
 

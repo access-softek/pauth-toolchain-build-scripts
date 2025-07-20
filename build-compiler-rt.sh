@@ -18,6 +18,3 @@ cmake \
   -C ./compiler-rt-${COMPILER_RT_BUILD}.cmake
 
 cmake --build "$BUILD_DIR" --target install -- -j$CPU_COUNT
-
-normalized_triple=$("$INSTALL_DIR/bin/$CROSS_TARGET-clang" --print-target-triple)
-ln -sfn $CROSS_TARGET "$COMPILER_RT_INSTALL_PREFIX/lib/$normalized_triple"
