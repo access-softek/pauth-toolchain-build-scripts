@@ -7,11 +7,15 @@ The resulting toolchain is written to `./output/llvm-pauth.squashfs` - it is a
 compressed read-only file system image which is intended to be `mount`ed to
 `/opt/llvm-pauth`.
 
-The versions of LLVM, Musl and Linux kernel are set in `llvm-branch-config`:
+The versions of LLVM and Musl as well as a few other tunables are set in `config`:
 by default, mainline `llvmorg-21.1.0-rc1` tag is used together with a patched
 version of Musl that can be obtained at https://github.com/access-softek/musl.
+
 The choice of Linux kernel version is mostly arbitrary: it is only used to
 provide kernel headers to Musl, thus any recent version should work.
+(As this version does not have to be adjusted by the user, it is defined in the
+`scripts/global-vars` file instead.)
+
 Please note that while basic sanity check is performed to make sure the
 expected SHA1 hashes are checked out under `./src/llvm` and `./src/musl`, it is
 not checked whether the working copy is clean or not.
@@ -19,10 +23,9 @@ not checked whether the working copy is clean or not.
 # Building the toolchain
 
 Ensure `llvm-project` and `musl` repositories are cloned on the host and contain
-the commits specified in `llvm-brach-config` file (by default, you need the
-mainline LLVM monorepo and patched Musl version from
-https://github.com/access-softek/musl). Alternatively, you can pass HTTPS URLs
-directly to `./docker.sh sources`.
+the commits specified in the `./config` file (by default, you need the mainline
+LLVM monorepo and patched Musl version from https://github.com/access-softek/musl).
+Alternatively, you can pass https:// or git:// URLs directly to `./docker.sh sources`.
 
 Checkout the particular commits of LLVM and Musl sources under `./src` and
 download Linux kernel tarball by running:
@@ -54,13 +57,13 @@ mkdir /opt/llvm-pauth
 mount output/llvm-pauth.squashfs /opt/llvm-pauth
 ```
 
-The Clang compiler driver is installed to `/opt/llvm-pauth/bin`, the PAuth-enabled
+The Clang compiler driver is located in `/opt/llvm-pauth/bin`, the PAuth-enabled
 sysroot is `/opt/llvm-pauth/aarch64-linux-pauthtest` (alternatively, a non-PAuth
-triple `aarch64-linux-musl` can be used with `/opt/llvm-pauth/aarch64-linux-musl`
-sysroot - both sysroots are configured for the corresponding triples via Clang
-config files: `/opt/llvm-pauth/bin/aarch64-unknown-linux-*.cfg`).
+triple `aarch64-linux-musl` can be used with `/opt/llvm-pauth/aarch64-linux-musl` -
+both sysroots are configured for the corresponding triples via Clang configuration
+files: `/opt/llvm-pauth/bin/aarch64-unknown-linux-*.cfg`).
 
-Programs can be compiled with
+Programs can be compiled with options like these
 
 ```
 $ /opt/llvm-pauth/bin/clang++ -target aarch64-linux-pauthtest -march=armv8.3-a hello-world.cpp -o hello-world

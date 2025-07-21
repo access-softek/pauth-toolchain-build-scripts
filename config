@@ -1,20 +1,28 @@
-# Build configuration (to be sourced by the build scripts).
+# Configuration file to be sourced by the build scripts.
 
-# Temporary directory inside the container to install the toolchain into.
+### LLVM and Musl versions to build ###
+
+# Branches or tags being checked out by "docker.sh sources".
+LLVM_BRANCH=llvmorg-21.1.0-rc1
+MUSL_BRANCH=atrosinenko/reloc-ids
+
+# Expected hashes at these branches.
+LLVM_SHA=cbcb48a88c3a6227cfc09f91880d5cb92a26f5f9
+MUSL_SHA=adfc8bd122b0c918a324abf55881dbd9b7c879fd
+
+# Extra flags to write to Clang config files as the defaults.
+EXTRA_FLAGS_PAUTHTEST="-Xclang -fptrauth-elf-got"
+EXTRA_FLAGS_MUSL=""
+
+### Other variables ###
+
+# Toolchain installation prefix.
+# This path is used inside the container as a temporary location to install
+# the toolchain before packing it into a SquashFS image.
 INSTALL_DIR=/opt/llvm-pauth
 
-# Directories mounted from the host to the container.
-OUTPUT_DIR=/scripts/output
-CCACHE_DIR=/scripts/ccache
-BUILD_TMP=/scripts/.build
-SRC_DIR=/src
-
-LLVM_SOURCE_DIR="$SRC_DIR/llvm"
-MUSL_SOURCE_DIR="$SRC_DIR/musl"
-
-LINUX_KERNEL_VERSION=6.1.58
-
-CPU_COUNT="$(nproc)"
-
-# Command to build and run containers on host: docker, podman, etc.
+# Command to build and run containers on the host: docker, podman, etc.
 DOCKER_CMD=docker
+
+# Container image name.
+DOCKER_IMAGE_NAME=pauth-toolchain-builder

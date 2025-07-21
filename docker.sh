@@ -4,8 +4,11 @@ ROOT="$(dirname "$0")"
 ROOT="$(realpath "$ROOT")"
 cd "$ROOT"
 
+# Path inside the container.
+REPO_ROOT=/repo
+
 . ./config
-. ./llvm-branch-config
+. ./scripts/global-vars
 
 check_repo_sha() {
   local repo_path="$1"
@@ -49,14 +52,18 @@ build_toolchain() {
   check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
 
-  $DOCKER_CMD build -t pauth-toolchain-builder -f Dockerfile.builder "$ROOT"
+  $DOCKER_CMD build \
+      -t "$DOCKER_IMAGE_NAME" \
+      -f Dockerfile.builder \
+      --build-arg REPO_ROOT="$REPO_ROOT" \
+      "$ROOT"
   $DOCKER_CMD run -ti --rm \
       --volume "$ROOT/output:$OUTPUT_DIR:rw" \
       --volume "$ROOT/ccache:$CCACHE_DIR:rw" \
       --volume "$ROOT/src:$SRC_DIR:ro" \
       --tmpfs "$INSTALL_DIR:rw,exec,size=2G" \
       --tmpfs "$BUILD_TMP:rw,exec,size=5G" \
-      pauth-toolchain-builder /scripts/build-in-docker.sh
+      "$DOCKER_IMAGE_NAME" "$REPO_ROOT/scripts/build-in-docker.sh"
 }
 
 main() {

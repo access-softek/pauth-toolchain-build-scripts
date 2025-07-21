@@ -1,8 +1,13 @@
 #!/usr/bin/env sh
 set -xe
+
+# This script invokes all other build-*.sh scripts.
+# Inside the container, it is called by build-in-docker.sh.
+# FIXME: Add another entry point script to perform build directly on host.
+
 cd "$(dirname "$0")"
-. ./config
-. ./llvm-branch-config
+. "$REPO_ROOT/config"
+. ./global-vars
 
 ./build-llvm.sh
 

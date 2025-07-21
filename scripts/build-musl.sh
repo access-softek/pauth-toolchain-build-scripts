@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 set -e
 cd "$(dirname "$0")"
-. ./config
+. "$REPO_ROOT/config"
+. ./global-vars
 
 BUILD_DIR="${BUILD_TMP}/musl-${CROSS_TARGET}"
 [ ! -n "$LIBC_STARTFILE_STAGE" ] && BUILD_DIR="$BUILD_DIR-full"
@@ -16,7 +17,7 @@ CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
 CFLAGS="$CFLAGS -O0 -isystem ${resource_dir}/include"
 export CFLAGS
 
-$MUSL_SOURCE_DIR/configure \
+"$MUSL_SOURCE_DIR/configure" \
   --prefix="$TARGET_PREFIX" \
   --disable-wrapper \
   --disable-optimize \

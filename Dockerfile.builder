@@ -20,12 +20,8 @@ RUN    apt-get update \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY build-*.sh \
-     create-symlinks.sh \
-     config \
-     llvm-branch-config \
-     toolchain-file.cmake \
-     llvm.cmake \
-     compiler-rt-*.cmake \
-     runtimes.cmake \
-     /scripts/
+ARG REPO_ROOT
+
+COPY cmake-caches /${REPO_ROOT}/cmake-caches
+COPY scripts      /${REPO_ROOT}/scripts
+COPY config       /${REPO_ROOT}

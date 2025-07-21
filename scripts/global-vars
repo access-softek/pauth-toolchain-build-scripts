@@ -1,0 +1,38 @@
+# This file defines global variables that are used by most of the build scripts.
+#
+# The variables defined directly in this file are global, but are not expected
+# to be adjusted by the users.
+#
+# On the other hand, the versions of LLVM and Musl to build, or the variables
+# that may have to be adjusted according to the host system configuration are
+# defined in the `config` file in the root of this repository instead.
+
+# REPO_ROOT should contain the path as seen by ./scripts/*.sh (i.e. it should
+# be a path inside the container when building using Docker).
+#
+# NB: Make sure the path is absolute, as relative paths may be interpreted in
+# surprising ways in some contexts, such as in the argument of `--toolchain`
+# option of CMake.
+if [ "x$REPO_ROOT" = "x" ]; then
+  echo "error: REPO_ROOT variable should be set before sourcing 'config'." 1>&2
+  exit 1
+fi
+
+# Directories mounted from the host to the container
+# (as seen from inside the container).
+OUTPUT_DIR="$REPO_ROOT/output"
+CCACHE_DIR="$REPO_ROOT/ccache"
+BUILD_TMP="$REPO_ROOT/.build"
+
+SRC_DIR="$REPO_ROOT/src"
+LLVM_SOURCE_DIR="$SRC_DIR/llvm"
+MUSL_SOURCE_DIR="$SRC_DIR/musl"
+
+CMAKE_CACHES_DIR="$REPO_ROOT/cmake-caches"
+
+# Linux kernel version to be used to provide user-space headers to libc.
+# Any recent version should work, so this variable is defined here instead
+# of $REPO_ROOT/config.
+LINUX_KERNEL_VERSION=6.1.58
+
+CPU_COUNT="$(nproc)"
