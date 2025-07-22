@@ -1,4 +1,3 @@
-set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
 set(LLVM_ENABLE_RUNTIMES "libcxx;libcxxabi;libunwind" CACHE STRING "" FORCE)
 
 set(LIBCXX_CXX_ABI "libcxxabi" CACHE STRING "" FORCE)

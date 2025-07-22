@@ -13,14 +13,15 @@ export CROSS_COMPILE="${INSTALL_DIR}/bin/${CROSS_TARGET}-"
 export LIBCC="$(${CROSS_COMPILE}clang -print-libgcc-file-name)"
 
 resource_dir="$(${CROSS_COMPILE}clang -print-resource-dir)"
+opt_cflags="$(if_then_else $BUILD_OPTIMIZED_RUNTIMES "" "-O0")"
 CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
-CFLAGS="$CFLAGS -O0 -isystem ${resource_dir}/include"
+CFLAGS="$CFLAGS -isystem ${resource_dir}/include $opt_cflags"
 export CFLAGS
 
 "$MUSL_SOURCE_DIR/configure" \
   --prefix="$TARGET_PREFIX" \
   --disable-wrapper \
-  --disable-optimize \
+  $(if_then_else $BUILD_OPTIMIZED_RUNTIMES --enable-optimize --disable-optimize) \
   --enable-debug
 
 if [ -n "$LIBC_STARTFILE_STAGE" ]; then

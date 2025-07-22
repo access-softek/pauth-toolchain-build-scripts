@@ -36,3 +36,21 @@ CMAKE_CACHES_DIR="$REPO_ROOT/cmake-caches"
 LINUX_KERNEL_VERSION=6.1.58
 
 CPU_COUNT="$(nproc)"
+
+# Prints its second or third argument depending on its first argument:
+#
+#     if_then_else "boolean" "if true" "if false"
+#
+if_then_else() {
+  case "$1" in
+  1|true|yes)
+    echo "$2"
+    ;;
+  0|false|no)
+    echo "$3"
+    ;;
+  *)
+    echo "Unexpected boolean value: $1" 1>&2
+    exit 1
+  esac
+}

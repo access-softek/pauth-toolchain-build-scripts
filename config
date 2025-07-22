@@ -16,6 +16,8 @@ EXTRA_FLAGS_MUSL=""
 
 ### Other variables ###
 
+BUILD_OPTIMIZED_RUNTIMES=yes
+
 # Toolchain installation prefix.
 # This path is used inside the container as a temporary location to install
 # the toolchain before packing it into a SquashFS image.

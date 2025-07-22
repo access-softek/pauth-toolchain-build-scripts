@@ -9,6 +9,7 @@ BUILD_DIR="${BUILD_TMP}/compiler-rt-${COMPILER_RT_BUILD}-${CROSS_TARGET}"
 COMPILER_RT_INSTALL_PREFIX="$("$INSTALL_DIR/bin/clang" --print-resource-dir)"
 
 cmake \
+  -DCMAKE_BUILD_TYPE=$(if_then_else $BUILD_OPTIMIZED_RUNTIMES RelWithDebInfo Debug) \
   -DTOOLCHAIN_BUILD_INSTALL_DIR="$INSTALL_DIR" \
   -DTOOLCHAIN_BUILD_TARGET="$CROSS_TARGET" \
   --toolchain "$CMAKE_CACHES_DIR/toolchain-file.cmake" \
