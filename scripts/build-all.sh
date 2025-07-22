@@ -9,9 +9,19 @@ cd "$(dirname "$0")"
 . "$REPO_ROOT/config"
 . ./global-vars
 
-./build-llvm.sh
+write_clang_config_files() {
+  cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-pauthtest.cfg" <<EOF
+--sysroot <CFGDIR>/../aarch64-linux-pauthtest
+$EXTRA_FLAGS_PAUTHTEST
+EOF
+  cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-musl.cfg" <<EOF
+--sysroot <CFGDIR>/../aarch64-linux-musl
+$EXTRA_FLAGS_MUSL
+EOF
+}
 
 build_target_libs() {
+  export CROSS_TARGET
   export TARGET_PREFIX="$INSTALL_DIR/$CROSS_TARGET/usr"
   ./create-symlinks.sh
   ./build-linux-header.sh
@@ -22,17 +32,8 @@ build_target_libs() {
   COMPILER_RT_BUILD=full ./build-compiler-rt.sh
 }
 
-cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-pauthtest.cfg" <<EOF
---sysroot <CFGDIR>/../aarch64-linux-pauthtest
-$EXTRA_FLAGS_PAUTHTEST
-EOF
-cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-musl.cfg" <<EOF
---sysroot <CFGDIR>/../aarch64-linux-musl
-$EXTRA_FLAGS_MUSL
-EOF
+./build-llvm.sh
 
-export CROSS_TARGET="aarch64-linux-pauthtest"
-build_target_libs
-
-export CROSS_TARGET="aarch64-linux-musl"
-build_target_libs
+write_clang_config_files
+CROSS_TARGET="aarch64-linux-pauthtest" build_target_libs
+CROSS_TARGET="aarch64-linux-musl"      build_target_libs
