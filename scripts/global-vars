@@ -28,7 +28,7 @@ SRC_DIR="$REPO_ROOT/src"
 LLVM_SOURCE_DIR="$SRC_DIR/llvm"
 MUSL_SOURCE_DIR="$SRC_DIR/musl"
 
-CMAKE_CACHES_DIR="$REPO_ROOT/cmake-caches"
+CMAKE_DIR="$REPO_ROOT/cmake"
 
 # Linux kernel version to be used to provide user-space headers to libc.
 # Any recent version should work, so this variable is defined here instead

@@ -12,11 +12,11 @@ cmake \
   -DCMAKE_BUILD_TYPE=$(if_then_else $BUILD_OPTIMIZED_RUNTIMES RelWithDebInfo Debug) \
   -DTOOLCHAIN_BUILD_INSTALL_DIR="$INSTALL_DIR" \
   -DTOOLCHAIN_BUILD_TARGET="$CROSS_TARGET" \
-  --toolchain "$CMAKE_CACHES_DIR/toolchain-file.cmake" \
+  --toolchain "$CMAKE_DIR/toolchain-file.cmake" \
   -S "$LLVM_SOURCE_DIR/compiler-rt" \
   -B "$BUILD_DIR" \
   -DCMAKE_INSTALL_PREFIX="$COMPILER_RT_INSTALL_PREFIX" \
-  -C "$CMAKE_CACHES_DIR/compiler-rt-common.cmake" \
-  -C "$CMAKE_CACHES_DIR/compiler-rt-${COMPILER_RT_BUILD}.cmake"
+  -C "$CMAKE_DIR/compiler-rt-common.cmake" \
+  -C "$CMAKE_DIR/compiler-rt-${COMPILER_RT_BUILD}.cmake"
 
 cmake --build "$BUILD_DIR" --target install -- -j$CPU_COUNT

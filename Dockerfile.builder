@@ -22,6 +22,6 @@ RUN    apt-get update \
 
 ARG REPO_ROOT
 
-COPY cmake-caches /${REPO_ROOT}/cmake-caches
-COPY scripts      /${REPO_ROOT}/scripts
-COPY config       /${REPO_ROOT}
+COPY cmake   /${REPO_ROOT}/cmake
+COPY scripts /${REPO_ROOT}/scripts
+COPY config  /${REPO_ROOT}
