@@ -87,3 +87,34 @@ $ /opt/llvm-pauth/bin/clang++ -target aarch64-linux-pauthtest -march=armv8.3-a \
 $ ./hello-world
 Hello world!
 ```
+
+Please note that is Musl, the `libc.so` shared object is both the C library to
+link your executables to as well as the dynamic loader.
+
+# Cross-debugging with qemu-user and GDB
+
+To debug a program for a different CPU architecture, a special GDB build may be
+required. For example, on Ubuntu one has to install a `gdb-multiarch` package
+that provides a command with the same name.
+
+When the dynamic linker is invoked explicitly to load and run the program (like
+in `/path/to/libc.so /path/to/program <program args>`), it may be required to
+explicitly inform the debugger about the address at which the main executable
+is loaded. To make GDB discover everything automatically, hardcode the dynamic
+linker path and run the debugged program directly like `./program <args>`
+(or `LD_LIBRARY_PATH=... ./program <args>`).
+
+Define `QEMU_GDB=<port number>` environment variable before executing the program
+to make QEMU stop at the first instruction of the guest process and listen at
+the specified port for incoming GDB `extended-remote` connection.
+See `qemu-aarch64 -h` for other command line options and corresponding
+environment variables.
+
+```
+$ QEMU_GDB=1234 ./hello-world
+# In other terminal:
+$ gdb-multiarch
+>>> target extended-remote :1234
+>>> b main
+>>> c
+```
