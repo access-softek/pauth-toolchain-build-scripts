@@ -4,11 +4,11 @@
 
 # Branches or tags being checked out by "docker.sh sources".
 LLVM_BRANCH=llvmorg-21.1.0-rc1
-MUSL_BRANCH=atrosinenko/reloc-ids
+MUSL_BRANCH=v1.2.5-pauth
 
 # Expected hashes at these branches.
 LLVM_SHA=cbcb48a88c3a6227cfc09f91880d5cb92a26f5f9
-MUSL_SHA=adfc8bd122b0c918a324abf55881dbd9b7c879fd
+MUSL_SHA=b6166c8d5470d594c1385ef54b02db459ad56bcc
 
 # Extra flags to write to Clang config files as the defaults.
 EXTRA_FLAGS_PAUTHTEST="-Xclang -fptrauth-elf-got"
