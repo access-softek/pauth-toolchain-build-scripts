@@ -8,6 +8,15 @@ BUILD_DIR="${BUILD_TMP}/compiler-rt-${COMPILER_RT_BUILD}-${CROSS_TARGET}"
 
 COMPILER_RT_INSTALL_PREFIX="$("$INSTALL_DIR/bin/clang" --print-resource-dir)"
 
+# Assertion: COMPILER_RT_INSTALL_PREFIX should be under INSTALL_DIR.
+rel_install_prefix="$(realpath --relative-to="$INSTALL_DIR" "$COMPILER_RT_INSTALL_PREFIX")"
+if [ "${rel_install_prefix#..}" != "${rel_install_prefix}" ]; then
+  # Removing an optional '..' prefix yields a different string - path is relative.
+  echo "Expected compiler-rt to be installed under $INSTALL_DIR" 1>&2
+  echo "The path returned by Clang is $COMPILER_RT_INSTALL_PREFIX" 1>&2
+  exit 1
+fi
+
 cmake \
   -G Ninja \
   -DCMAKE_BUILD_TYPE=$(if_then_else $BUILD_OPTIMIZED_RUNTIMES RelWithDebInfo Debug) \
