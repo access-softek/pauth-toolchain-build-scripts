@@ -6,7 +6,10 @@ cd "$(dirname "$0")"
 
 BUILD_DIR="$BUILD_TMP/runtimes-${CROSS_TARGET}"
 
-rm -rf "$TARGET_PREFIX/include/c++" || true
+if [ -d "$TARGET_PREFIX/include/c++" ]; then
+  echo "ERROR: The destination directory already exists: $TARGET_PREFIX/include/c++" 1>&2
+  exit 1
+fi
 
 cmake \
   -G Ninja \
