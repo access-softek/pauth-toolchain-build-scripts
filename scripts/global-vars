@@ -13,22 +13,27 @@
 # NB: Make sure the path is absolute, as relative paths may be interpreted in
 # surprising ways in some contexts, such as in the argument of `--toolchain`
 # option of CMake.
-if [ "x$REPO_ROOT" = "x" ]; then
-  echo "error: REPO_ROOT variable should be set before sourcing 'config'." 1>&2
-  exit 1
+if [ "x$REPO_ROOT" != "x" ]; then
+  # Directories mounted from the host to the container in Docker-based build.
+  # When Docker is used, these path should be as seen from inside the container,
+  # otherwise they are just absolute paths on the host pointing inside this repo.
+  OUTPUT_DIR="$REPO_ROOT/output"
+  CCACHE_DIR="$REPO_ROOT/ccache"
+  BUILD_TMP="$REPO_ROOT/build"
+
+  SRC_DIR="$REPO_ROOT/src"
+  LLVM_SOURCE_DIR="$SRC_DIR/llvm"
+  MUSL_SOURCE_DIR="$SRC_DIR/musl"
+
+  CMAKE_DIR="$REPO_ROOT/cmake"
 fi
 
-# Directories mounted from the host to the container
-# (as seen from inside the container).
-OUTPUT_DIR="$REPO_ROOT/output"
-CCACHE_DIR="$REPO_ROOT/ccache"
-BUILD_TMP="$REPO_ROOT/build"
-
-SRC_DIR="$REPO_ROOT/src"
-LLVM_SOURCE_DIR="$SRC_DIR/llvm"
-MUSL_SOURCE_DIR="$SRC_DIR/musl"
-
-CMAKE_DIR="$REPO_ROOT/cmake"
+# TOOLCHAIN_BUILD_IN_DOCKER is defined in Dockerfile.builder
+if [ -n "$TOOLCHAIN_BUILD_IN_DOCKER" ]; then
+  INSTALL_DIR="$DOCKER_BUILD_INSTALL_DIR"
+else
+  INSTALL_DIR="$HOST_BUILD_INSTALL_DIR"
+fi
 
 # Linux kernel version to be used to provide user-space headers to libc.
 # Any recent version should work, so this variable is defined here instead
