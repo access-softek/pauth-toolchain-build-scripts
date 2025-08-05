@@ -25,25 +25,25 @@ not checked whether the working copy is clean or not.
 Ensure `llvm-project` and `musl` repositories are cloned on the host and contain
 the commits specified in the `./config` file (by default, you need the mainline
 LLVM monorepo and patched Musl version from https://github.com/access-softek/musl).
-Alternatively, you can pass https:// or git:// URLs directly to `./docker.sh sources`.
+Alternatively, you can pass https:// or git:// URLs directly to `./build.sh sources`.
 
 Checkout the particular commits of LLVM and Musl sources under `./src` and
 download Linux kernel tarball by running:
 
 ```
-./docker.sh sources <llvm_repo_url> <musl_repo_url>
+./build.sh sources <llvm_repo_url> <musl_repo_url>
 ```
 
 if LLVM and Musl are already cloned on the host, use
 
 ```
-./docker.sh sources file:///absolute/path/to/llvm-project file:///absolute/path/to/musl
+./build.sh sources file:///absolute/path/to/llvm-project file:///absolute/path/to/musl
 ```
 
 Then build the toolchain by running
 
 ```
-./docker.sh build
+./build.sh build
 ```
 
 The build artifact is `./output/llvm-pauth.squashfs` file.
