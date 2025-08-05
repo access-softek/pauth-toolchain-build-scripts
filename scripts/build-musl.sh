@@ -4,8 +4,6 @@ cd "$(dirname "$0")"
 . "$REPO_ROOT/config"
 . ./global-vars
 
-BUILD_DIR="${BUILD_TMP}/musl-${CROSS_TARGET}"
-[ ! -n "$LIBC_STARTFILE_STAGE" ] && BUILD_DIR="$BUILD_DIR-full"
 mkdir "$BUILD_DIR"
 cd "$BUILD_DIR"
 

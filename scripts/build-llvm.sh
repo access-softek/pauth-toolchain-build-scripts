@@ -4,8 +4,6 @@ cd "$(dirname "$0")"
 . "$REPO_ROOT/config"
 . ./global-vars
 
-BUILD_DIR="$BUILD_TMP/llvm"
-
 cmake \
   -S "$LLVM_SOURCE_DIR/llvm" \
   -B "$BUILD_DIR" \

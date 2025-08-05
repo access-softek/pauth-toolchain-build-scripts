@@ -4,8 +4,6 @@ cd "$(dirname "$0")"
 . "$REPO_ROOT/config"
 . ./global-vars
 
-BUILD_DIR="$BUILD_TMP/runtimes-${CROSS_TARGET}"
-
 if [ -d "$TARGET_PREFIX/include/c++" ]; then
   echo "ERROR: The destination directory already exists: $TARGET_PREFIX/include/c++" 1>&2
   exit 1

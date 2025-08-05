@@ -4,8 +4,6 @@ cd "$(dirname "$0")"
 . "$REPO_ROOT/config"
 . ./global-vars
 
-BUILD_DIR="${BUILD_TMP}/compiler-rt-${COMPILER_RT_BUILD}-${CROSS_TARGET}"
-
 COMPILER_RT_INSTALL_PREFIX="$("$INSTALL_DIR/bin/clang" --print-resource-dir)"
 
 # Assertion: COMPILER_RT_INSTALL_PREFIX should be under INSTALL_DIR.
