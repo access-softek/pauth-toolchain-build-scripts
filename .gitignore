@@ -1,4 +1,6 @@
 output*/
 ccache*/
+/build/
 .build*/
 /src/
+/inst/

@@ -1,4 +1,6 @@
 /ccache/
 /output/
 /src/
+/build/
 /.build/
+/inst/

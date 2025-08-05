@@ -22,7 +22,7 @@ fi
 # (as seen from inside the container).
 OUTPUT_DIR="$REPO_ROOT/output"
 CCACHE_DIR="$REPO_ROOT/ccache"
-BUILD_TMP="$REPO_ROOT/.build"
+BUILD_TMP="$REPO_ROOT/build"
 
 SRC_DIR="$REPO_ROOT/src"
 LLVM_SOURCE_DIR="$SRC_DIR/llvm"
