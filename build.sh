@@ -20,6 +20,35 @@ check_repo_sha() {
   fi
 }
 
+# NOTE: Non-clean status of the working directory is currently ignored.
+#       This makes it possible to checkout the expected commit first
+#       and perform quick local experiments later (until switching to another
+#       expected commit).
+fetch_git_commit() {
+  local repo_path="$1"
+  local repo_url="$2"
+  local branch="$3"
+  local expected_sha="$4"
+
+  if [ ! -d "$repo_path" ]; then
+    # No repository found - initialize one and create a dummy commit,
+    # for rev-parse to return *something*.
+    echo "Initializing git repository at $repo_path..."
+    git init --initial-branch=temp "$repo_path"
+    git -C "$repo_path" commit --allow-empty -m "Dummy commit on a dummy branch"
+  fi
+
+  local current_sha="$(git -C "$repo_path" rev-parse HEAD)"
+  if [ "$current_sha" != "$expected_sha" ]; then
+    local timestamp="$(date '+%Y%m%d_%H_%M_%S')"
+    echo "$repo_path: switching from $current_sha to $expected_sha ($branch)..."
+    git -C "$repo_path" fetch --depth 1 "$repo_url" "$branch"
+    # Create a branch, so that subsequent fetch operations can ask the remote
+    # git not to re-pack the existing objects.
+    git -C "$repo_path" checkout -b "fetch-$timestamp" FETCH_HEAD
+  fi
+}
+
 fetch_sources() {
   . ./config
   . ./scripts/global-vars
@@ -34,8 +63,8 @@ fetch_sources() {
   local musl_repo="$2"
 
   mkdir -p "$ROOT/src"
-  test -d "$ROOT/src/llvm" || git clone --depth 1 -b "$LLVM_BRANCH" "$llvm_repo" "$ROOT/src/llvm"
-  test -d "$ROOT/src/musl" || git clone --depth 1 -b "$MUSL_BRANCH" "$musl_repo" "$ROOT/src/musl"
+  fetch_git_commit "$ROOT/src/llvm" "$llvm_repo" "$LLVM_BRANCH" "$LLVM_SHA"
+  fetch_git_commit "$ROOT/src/musl" "$musl_repo" "$MUSL_BRANCH" "$MUSL_SHA"
 
   local SOURCE_TARBALL=linux-$LINUX_KERNEL_VERSION.tar.xz
   curl -sSL "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_KERNEL_VERSION%%.*}.x/$SOURCE_TARBALL" \
