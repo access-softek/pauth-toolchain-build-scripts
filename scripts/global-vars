@@ -32,6 +32,9 @@ fi
 # Any recent version should work, so this variable is defined here instead
 # of $REPO_ROOT/config.
 LINUX_KERNEL_VERSION=6.1.58
+LINUX_KERNEL_TARBALL_BASENAME="linux-$LINUX_KERNEL_VERSION.tar.xz"
+LINUX_KERNEL_TARBALL_URL="https://cdn.kernel.org/pub/linux/kernel/v${LINUX_KERNEL_VERSION%%.*}.x/$LINUX_KERNEL_TARBALL_BASENAME"
+LINUX_KERNEL_SHA256=ce987ed3d2f640b3a2a62a0a8573d538a36dfd3cc31e2d7a239ce5a16c1c21ad
 
 CPU_COUNT="$(nproc)"
 
