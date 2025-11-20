@@ -106,7 +106,7 @@ build_in_docker() {
       --volume "$ROOT/src:$SRC_DIR:ro" \
       --volume "$ROOT/tmp:/tmp:rw" \
       --tmpfs "$DOCKER_BUILD_INSTALL_DIR:rw,exec,size=2G" \
-      --tmpfs "$BUILD_TMP:rw,exec,size=5G" \
+      --tmpfs "$BUILD_TMP:rw,exec,size=8G" \
       "$DOCKER_IMAGE_NAME" "$REPO_ROOT/scripts/build-in-docker.sh"
 }
 
