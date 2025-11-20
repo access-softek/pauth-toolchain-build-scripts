@@ -10,6 +10,7 @@ cd "$(dirname "$0")"
 export REPO_ROOT="$(pwd)/.."
 . ../config
 . ./global-vars
+export INSTALL_DIR="$DOCKER_BUILD_INSTALL_DIR"
 
 if ! ./build-all.sh; then
   echo "Containerized build failed - $BUILD_TMP is discarded automatically."

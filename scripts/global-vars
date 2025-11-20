@@ -28,13 +28,6 @@ if [ "x$REPO_ROOT" != "x" ]; then
   CMAKE_DIR="$REPO_ROOT/cmake"
 fi
 
-# TOOLCHAIN_BUILD_IN_DOCKER is defined in Dockerfile.builder
-if [ -n "$TOOLCHAIN_BUILD_IN_DOCKER" ]; then
-  INSTALL_DIR="$DOCKER_BUILD_INSTALL_DIR"
-else
-  INSTALL_DIR="$HOST_BUILD_INSTALL_DIR"
-fi
-
 # Linux kernel version to be used to provide user-space headers to libc.
 # Any recent version should work, so this variable is defined here instead
 # of $REPO_ROOT/config.
