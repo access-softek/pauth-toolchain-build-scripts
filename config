@@ -3,12 +3,12 @@
 ### LLVM and Musl versions to build ###
 
 # Branches or tags being checked out by "docker.sh sources".
-LLVM_BRANCH=llvmorg-21.1.0-rc1
-MUSL_BRANCH=v1.2.5-pauth
+LLVM_BRANCH=llvmorg-21.1.6
+MUSL_BRANCH=v1.2.5-pauth-rev2025-11-21
 
 # Expected hashes at these branches.
-LLVM_SHA=cbcb48a88c3a6227cfc09f91880d5cb92a26f5f9
-MUSL_SHA=b6166c8d5470d594c1385ef54b02db459ad56bcc
+LLVM_SHA=a832a5222e489298337fbb5876f8dcaf072c5cca
+MUSL_SHA=b37ee52aff13880884a7afa8c5161a4f4f7e0236
 
 # Extra flags to write to Clang config files as the defaults.
 EXTRA_FLAGS_PAUTHTEST="-Xclang -fptrauth-elf-got"
