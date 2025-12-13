@@ -13,9 +13,12 @@
 # NB: Make sure the path is absolute, as relative paths may be interpreted in
 # surprising ways in some contexts, such as in the argument of `--toolchain`
 # option of CMake.
-if [ "x$REPO_ROOT" = "x" ]; then
-  echo "error: REPO_ROOT variable should be set before sourcing 'config'." 1>&2
-  exit 1
+if [ -z "$REPO_ROOT" ]; then
+  # The script has been executed outside of the container.
+  # Use the git repo root instead.
+  REPO_ROOT="$(dirname "$0")"
+  REPO_ROOT="$(realpath "$REPO_ROOT/..")"
+  echo "REPO_ROOT is setting to the default value: $REPO_ROOT"
 fi
 
 # Directories mounted from the host to the container
@@ -23,6 +26,12 @@ fi
 OUTPUT_DIR="$REPO_ROOT/output"
 CCACHE_DIR="$REPO_ROOT/ccache"
 BUILD_TMP="$REPO_ROOT/.build"
+
+LLVM_BUILD_DIR="$BUILD_TMP/llvm"
+
+[ -z "$TOOLCHAIN_ROOT" ] && TOOLCHAIN_ROOT="$LLVM_BUILD_DIR"
+
+[ -z "$INSTALL_DIR" ] && INSTALL_DIR="$REPO_ROOT/sysroots"
 
 SRC_DIR="$REPO_ROOT/src"
 LLVM_SOURCE_DIR="$SRC_DIR/llvm"
@@ -53,4 +62,20 @@ if_then_else() {
     echo "Unexpected boolean value: $1" 1>&2
     exit 1
   esac
+}
+
+check_repo_sha() {
+  local repo_path="$1"
+  local expected_sha="$2"
+
+  local sha="$(git -C "$repo_path" rev-parse HEAD)"
+  if [ "$sha" != "$expected_sha" ]; then
+    echo "Unexpected commit hash:"
+    echo "  repo: $repo_path"
+    echo "  expected: $expected_sha"
+    echo "  observed: $sha"
+    exit 1
+  else
+    echo "Checked commit hash at $repo_path"
+  fi
 }

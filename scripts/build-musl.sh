@@ -1,38 +1,69 @@
 #!/usr/bin/env sh
 set -e
-cd "$(dirname "$0")"
-. "$REPO_ROOT/config"
-. ./global-vars
 
-BUILD_DIR="${BUILD_TMP}/musl-${CROSS_TARGET}"
-[ ! -n "$LIBC_STARTFILE_STAGE" ] && BUILD_DIR="$BUILD_DIR-full"
-mkdir "$BUILD_DIR"
-cd "$BUILD_DIR"
+ROOT="$(dirname "$0")"
+ROOT="$(realpath "$ROOT/..")"
 
-export CROSS_COMPILE="${INSTALL_DIR}/bin/${CROSS_TARGET}-"
-export LIBCC="$(${CROSS_COMPILE}clang -print-libgcc-file-name)"
+cd "$ROOT"
 
-resource_dir="$(${CROSS_COMPILE}clang -print-resource-dir)"
-opt_cflags="$(if_then_else $BUILD_OPTIMIZED_RUNTIMES "" "-O0")"
-CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
-CFLAGS="$CFLAGS -isystem ${resource_dir}/include $opt_cflags"
-export CFLAGS
+. ./config
+. ./scripts/global-vars
 
-"$MUSL_SOURCE_DIR/configure" \
-  --prefix="$TARGET_PREFIX" \
-  --disable-wrapper \
-  $(if_then_else $BUILD_OPTIMIZED_RUNTIMES --enable-optimize --disable-optimize) \
-  --enable-debug
-
-if [ -n "$LIBC_STARTFILE_STAGE" ]; then
-  echo "Install MUSL header and start files for target $CROSS_TARGET"
-  make install-headers -j$CPU_COUNT
+if [ -z "$CROSS_TARGET" ]; then
+  targets=$TOOLCHAIN_TARGETS
 else
-  echo "Install MUSL for target $CROSS_TARGET"
-  make install -j$CPU_COUNT
-  # Convert /lib/ld-* symlinks to relative paths
-  for f in `find "$TARGET_PREFIX/lib" -type l -name "ld-musl*"`
-  do
-    ln -sf libc.so "$f"
-  done
+  targets=$CROSS_TARGET
 fi
+
+echo "MUSL sources: $MUSL_SOURCE_DIR"
+
+for target in $targets; do
+  target_prefx="$INSTALL_DIR/$target/usr"
+  target_syslibdir="$INSTALL_DIR/$target/lib"
+  build_dir="$BUILD_TMP/musl-$target"
+
+  [ ! -n "$LIBC_STARTFILE_STAGE" ] && build_dir="$build_dir-full"
+  # Clean up build dir (rebuild every time).
+  [ -d "$build_dir" ] && rm -rf "$build_dir"
+  mkdir -p "$build_dir" && cd "$build_dir"
+
+  echo "%%% MUSL: $target => $target_prefx"
+  echo "%%% MUSL: target_syslibdir: $target_syslibdir"
+
+  if [ -n "$LIBC_STARTFILE_STAGE" ]; then
+    # No need configuration here. Just provide required variables to the make tool.
+    echo "Install MUSL header and start files for target $target => $target_prefx"
+
+    make -f "$MUSL_SOURCE_DIR/Makefile" ARCH=aarch64 srcdir="$MUSL_SOURCE_DIR" prefix="$target_prefx" install-headers
+  else
+    opt_cflags="$(if_then_else $BUILD_OPTIMIZED_RUNTIMES "" "-O0")"
+    CFLAGS="--target=$target $TARGET_COMMON_CFLAGS $opt_cflags"
+    export CFLAGS
+    export CC="${TOOLCHAIN_ROOT}/bin/clang"
+
+    echo "%%% print-resource-dir: $($CC --target=$target -print-resource-dir)"
+    echo "%%% print-libgcc-file-name: $($CC --target=$target -print-libgcc-file-name)"
+
+    export AR="${TOOLCHAIN_ROOT}/bin/llvm-ar"
+    export RANLIB="${TOOLCHAIN_ROOT}/bin/llvm-ranlib"
+    export LIBCC=$($CC --target=$target -print-libgcc-file-name)
+
+    "$MUSL_SOURCE_DIR/configure" \
+      --target=$target \
+      --prefix="$target_prefx" \
+      --syslibdir="$target_syslibdir" \
+      --disable-wrapper \
+      $(if_then_else $BUILD_OPTIMIZED_RUNTIMES --enable-optimize --disable-optimize) \
+      --enable-debug
+
+    echo "Install MUSL for target $target => $target_prefx"
+    make install-libs -j$CPU_COUNT
+    # Convert /lib/ld-* symlinks to relative paths
+    for f in `find "$target_syslibdir" -type l -name "ld-musl*"`
+    do
+      echo "Convert ld-* symlinks to relative path: $f => ../usr/lib/libc.so ..."
+      ln -sf ../usr/lib/libc.so "$f"
+    done
+fi
+
+done

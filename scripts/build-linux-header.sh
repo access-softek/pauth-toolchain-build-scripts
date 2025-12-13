@@ -1,21 +1,42 @@
 #!/usr/bin/env sh
 set -e
-cd "$(dirname "$0")"
-. "$REPO_ROOT/config"
-. ./global-vars
+
+ROOT="$(dirname "$0")"
+ROOT="$(realpath "$ROOT/..")"
+
+cd "$ROOT"
+
+. ./config
+. ./scripts/global-vars
 
 KERNEL_ARCH=arm64
 TARBALL_BASENAME="linux-$LINUX_KERNEL_VERSION.tar.xz"
 TARBALL_PATH="$SRC_DIR/$TARBALL_BASENAME"
 
-BUILD_DIR="$BUILD_TMP/linux-headers-${CROSS_TARGET}"
+if [ -z "$CROSS_TARGET" ]; then
+  targets=$TOOLCHAIN_TARGETS
+else
+  targets=$CROSS_TARGET
+fi
 
-mkdir "$BUILD_DIR"
-tar -axf "$TARBALL_PATH" -C "$BUILD_DIR" --strip 1
-mkdir "$BUILD_DIR/build-$KERNEL_ARCH"
+if [ -d "$BUILD_TMP" ]; then
+  echo "--- removing $BUILD_TMP ..."
+  rm -rf "$BUILD_TMP"
+fi
 
-make -C "$BUILD_DIR" \
-     O="$BUILD_DIR/build-$KERNEL_ARCH" \
-     ARCH=$KERNEL_ARCH \
-     INSTALL_HDR_PATH="$TARGET_PREFIX" \
-     headers_install -j$CPU_COUNT
+for target in $targets; do
+  target_prefx="$INSTALL_DIR/$target/usr" 
+  build_dir="$BUILD_TMP/linux-headers-$target"
+
+  echo "+++ processing headers for target: $target -> $target_prefx ..."
+
+  mkdir -p "$build_dir"
+  tar -axf "$TARBALL_PATH" -C "$build_dir" --strip 1
+  mkdir "$build_dir/build-$KERNEL_ARCH"
+
+  make -C "$build_dir" \
+       O="$build_dir/build-$KERNEL_ARCH" \
+       ARCH=$KERNEL_ARCH \
+       INSTALL_HDR_PATH="$target_prefx" \
+       headers_install -j$CPU_COUNT
+done

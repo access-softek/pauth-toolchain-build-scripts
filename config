@@ -3,28 +3,35 @@
 ### LLVM and Musl versions to build ###
 
 # Branches or tags being checked out by "docker.sh sources".
-LLVM_BRANCH=llvmorg-21.1.6
-MUSL_BRANCH=v1.2.5-pauth-rev2025-11-21
+LLVM_BRANCH=llvmorg-21.1.0-rc1
+MUSL_BRANCH=v1.2.5-pauth
 
 # Expected hashes at these branches.
-LLVM_SHA=a832a5222e489298337fbb5876f8dcaf072c5cca
-MUSL_SHA=b37ee52aff13880884a7afa8c5161a4f4f7e0236
+LLVM_SHA=cbcb48a88c3a6227cfc09f91880d5cb92a26f5f9
+MUSL_SHA=b6166c8d5470d594c1385ef54b02db459ad56bcc
+
+TOOLCHAIN_TARGETS="aarch64-linux-musl aarch64-linux-pauthtest"
+
+TARGET_COMMON_CFLAGS="-fdebug-default-version=4 -gdwarf-4 -march=armv8.3-a+pauth"
 
 # Extra flags to write to Clang config files as the defaults.
-EXTRA_FLAGS_PAUTHTEST="-Xclang -fptrauth-elf-got"
-EXTRA_FLAGS_MUSL=""
+TARGET_EXTRA_CFLAGS_aarch64_linux_pauthtest="-Xclang -fptrauth-elf-got"
+TARGET_EXTRA_CFLAGS_aarch64_linux_musl=""
 
 ### Other variables ###
 
 BUILD_OPTIMIZED_RUNTIMES=yes
 
-# Toolchain installation prefix.
+# The target sysroot installation prefix.
 # This path is used inside the container as a temporary location to install
 # the toolchain before packing it into a SquashFS image.
-INSTALL_DIR=/opt/llvm-pauth
+#INSTALL_DIR=/opt/llvm-pauth
 
 # Command to build and run containers on the host: docker, podman, etc.
 DOCKER_CMD=docker
 
 # Container image name.
 DOCKER_IMAGE_NAME=pauth-toolchain-builder
+
+DEFAULT_LLVM_REPO_URL=https://github.com/llvm/llvm-project
+DEFAULT_MUSL_REPO_URL=https://github.com/access-softek/musl

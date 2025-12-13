@@ -5,28 +5,14 @@ ROOT="$(realpath "$ROOT")"
 cd "$ROOT"
 
 # Path inside the container.
-REPO_ROOT=/repo
+export REPO_ROOT=/repo
 
 . ./config
 . ./scripts/global-vars
 
-check_repo_sha() {
-  local repo_path="$1"
-  local expected_sha="$2"
-
-  local sha="$(git -C "$repo_path" rev-parse HEAD)"
-  if [ "$sha" != "$expected_sha" ]; then
-    echo "Unexpected commit hash:"
-    echo "  repo: $repo_path"
-    echo "  expected: $expected_sha"
-    echo "  observed: $sha"
-    exit 1
-  else
-    echo "Checked commit hash at $repo_path"
-  fi
-}
-
 fetch_sources() {
+  ./scripts/fetch-sources.sh "$@"
+
   if [ "$#" != 2 ]; then
     echo "Usage: docker.sh sources <llvm_repo_url> <musl_repo_url>"
     echo "Note that file:///path/to/repo/ URLs can be used."
@@ -48,22 +34,65 @@ fetch_sources() {
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
 }
 
-build_toolchain() {
-  check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
-  check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
+build_container() {
+  result=$( $DOCKER_CMD images -q "$DOCKER_IMAGE_NAME" )
 
-  $DOCKER_CMD build \
-      -t "$DOCKER_IMAGE_NAME" \
-      -f Dockerfile.builder \
-      --build-arg REPO_ROOT="$REPO_ROOT" \
-      "$ROOT"
-  $DOCKER_CMD run -ti --rm \
+  # Do not recreate the docker image.
+  if [ -z "$result" ]; then
+    echo "+++ creating docker container: $DOCKER_IMAGE_NAME at $ROOT"
+
+    $DOCKER_CMD build \
+        -t "$DOCKER_IMAGE_NAME" \
+        -f Dockerfile.builder \
+        --build-arg REPO_ROOT="$REPO_ROOT" \
+        "$ROOT"
+  fi
+}
+
+run_container_with() {
+  local script_to_run="$1"
+
+  # Build docker container if missed.
+  build_container
+
+  echo "+++ running container command: $script_to_run ..."
+
+  $DOCKER_CMD run -ti \
       --volume "$ROOT/output:$OUTPUT_DIR:rw" \
       --volume "$ROOT/ccache:$CCACHE_DIR:rw" \
       --volume "$ROOT/src:$SRC_DIR:ro" \
       --tmpfs "$INSTALL_DIR:rw,exec,size=2G" \
       --tmpfs "$BUILD_TMP:rw,exec,size=5G" \
-      "$DOCKER_IMAGE_NAME" "$REPO_ROOT/scripts/build-in-docker.sh"
+      "$DOCKER_IMAGE_NAME" $script_to_run
+}
+
+remove_container() {
+  result=$( $DOCKER_CMD images -q "$DOCKER_IMAGE_NAME" )
+
+  if [ -n "$result" ]; then
+    contid=$( $DOCKER_CMD ps -a -q --filter ancestor="$result" )
+    if [ -n "$contid" ]; then
+      echo "+++ removing the container and its associated anonymous volumes: $contid ($DOCKER_IMAGE_NAME)"
+      $DOCKER_CMD rm -v "$contid"
+    fi
+  fi
+}
+
+remove_image() {
+  result=$( $DOCKER_CMD images -q "$DOCKER_IMAGE_NAME" )
+
+  if [ -n "$result" ]; then
+    echo "+++ removing the image: $DOCKER_IMAGE_NAME ($result)"
+    $DOCKER_CMD rmi "$result"
+  fi
+}
+
+build_toolchain() {
+  check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
+  check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
+
+  run_container_with "$REPO_ROOT/scripts/build-in-docker.sh"
+  remove_container
 }
 
 main() {
@@ -72,14 +101,33 @@ main() {
   case "$subcmd" in
   sources)
     shift
-    fetch_sources "$@"
+    ./scripts/fetch-sources.sh "$@"
+  ;;
+  clean-src)
+    test -d "$ROOT/src/llvm" && rm -rf "$ROOT/src/llvm"
+    test -d "$ROOT/src/musl" && rm -rf "$ROOT/src/musl"
+  ;;
+  remove)
+    # remove the container and its associated anonymous volumes.
+    remove_container
+  ;;
+  remove-image)
+    remove_image
   ;;
   build)
     build_toolchain
   ;;
+  build-sysroots)
+    echo "+++ build-sysroots"
+    run_container_with "$REPO_ROOT/scripts/build-linux-header.sh"
+  ;;
+  build-toolchain)
+  ;;
+  build-musl)
+  ;;
   *)
     echo "Unknown subcommand: $subcmd"
-    echo "Expected: 'sources', 'build'."
+    echo "Expected: 'sources', 'clean-src', 'remove', 'build', 'build-sysroots', 'build-toolchain', 'build-musl'."
     exit 1
   ;;
   esac
