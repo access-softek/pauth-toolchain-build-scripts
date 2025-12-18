@@ -36,7 +36,7 @@ for target in $targets; do
 
     make -f "$MUSL_SOURCE_DIR/Makefile" ARCH=aarch64 srcdir="$MUSL_SOURCE_DIR" prefix="$target_prefx" install-headers
   else
-    opt_cflags="$(if_then_else $BUILD_OPTIMIZED_RUNTIMES "" "-O0")"
+    opt_cflags="$(if_then_else ${BUILD_OPTIMIZED_RUNTIMES:-0} "" "-O0")"
     CFLAGS="--target=$target $TARGET_COMMON_CFLAGS $opt_cflags"
     export CFLAGS
     export CC="${TOOLCHAIN_ROOT}/bin/clang"
@@ -53,7 +53,7 @@ for target in $targets; do
       --prefix="$target_prefx" \
       --syslibdir="$target_syslibdir" \
       --disable-wrapper \
-      $(if_then_else $BUILD_OPTIMIZED_RUNTIMES --enable-optimize --disable-optimize) \
+      $(if_then_else ${BUILD_OPTIMIZED_RUNTIMES:-0} --enable-optimize --disable-optimize) \
       --enable-debug
 
     echo "Install MUSL for target $target => $target_prefx"

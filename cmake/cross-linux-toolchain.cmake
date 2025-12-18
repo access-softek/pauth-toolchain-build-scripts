@@ -109,10 +109,12 @@ endfunction()
 
 message(STATUS "Toolchain target triples: ${TOOLCHAIN_TARGET_TRIPLE}")
 
+#TODO:VV: do not initialize it by default (?)
 # Build the shared libraries for libc++/libc++abi/libunwind.
 if (NOT DEFINED TOOLCHAIN_SHARED_LIBS)
   set(TOOLCHAIN_SHARED_LIBS OFF)
 endif()
+#TODO:VV: do not initialize it by default (?)
 # Enable usage of the static libunwind and libc++abi libraries.
 if (NOT DEFINED TOOLCHAIN_USE_STATIC_LIBS)
   set(TOOLCHAIN_USE_STATIC_LIBS ON)
@@ -256,20 +258,33 @@ foreach(target ${LLVM_RUNTIME_TARGETS})
   set(RUNTIMES_${target}_COMPILER_RT_TEST_COMPILER_CFLAGS          "--stdlib=libc++ ${sysroot_flags}" CACHE STRING "")
     
   set(RUNTIMES_${target}_LIBUNWIND_USE_COMPILER_RT                 ON CACHE BOOL "")
-  set(RUNTIMES_${target}_LIBUNWIND_ENABLE_SHARED                   ${TOOLCHAIN_SHARED_LIBS} CACHE BOOL "")
 
   set(RUNTIMES_${target}_LIBCXXABI_USE_LLVM_UNWINDER               ON CACHE BOOL "")
-  set(RUNTIMES_${target}_LIBCXXABI_ENABLE_STATIC_UNWINDER          ${TOOLCHAIN_USE_STATIC_LIBS} CACHE BOOL "")
   set(RUNTIMES_${target}_LIBCXXABI_USE_COMPILER_RT                 ON CACHE BOOL "")
   set(RUNTIMES_${target}_LIBCXXABI_ENABLE_NEW_DELETE_DEFINITIONS   OFF CACHE BOOL "")
-  set(RUNTIMES_${target}_LIBCXXABI_ENABLE_SHARED                   ${TOOLCHAIN_SHARED_LIBS} CACHE BOOL "")
 
   set(RUNTIMES_${target}_LIBCXX_USE_COMPILER_RT                    ON CACHE BOOL "")
-  set(RUNTIMES_${target}_LIBCXX_ENABLE_SHARED                      ${TOOLCHAIN_SHARED_LIBS} CACHE BOOL "")
   set(RUNTIMES_${target}_LIBCXX_CXX_ABI                            "libcxxabi" CACHE STRING "")    #!!!
   set(RUNTIMES_${target}_LIBCXX_ENABLE_NEW_DELETE_DEFINITIONS      ON CACHE BOOL "")
-  # Merge libc++ and libc++abi libraries into the single libc++ library file.
-  set(RUNTIMES_${target}_LIBCXX_ENABLE_STATIC_ABI_LIBRARY          ${TOOLCHAIN_USE_STATIC_LIBS} CACHE BOOL "")
+
+  
+  if (DEFINED TOOLCHAIN_SHARED_LIBS)
+    set(RUNTIMES_${target}_LIBUNWIND_ENABLE_SHARED                   ${TOOLCHAIN_SHARED_LIBS} CACHE BOOL "")
+    set(RUNTIMES_${target}_LIBCXXABI_ENABLE_SHARED                   ${TOOLCHAIN_SHARED_LIBS} CACHE BOOL "")
+    set(RUNTIMES_${target}_LIBCXX_ENABLE_SHARED                      ${TOOLCHAIN_SHARED_LIBS} CACHE BOOL "")
+  endif()
+  if (DEFINED TOOLCHAIN_STATIC_LIBS)
+    set(RUNTIMES_${target}_LIBUNWIND_ENABLE_STATIC                   ${TOOLCHAIN_STATIC_LIBS} CACHE BOOL "")
+    set(RUNTIMES_${target}_LIBCXXABI_ENABLE_STATIC                   ${TOOLCHAIN_STATIC_LIBS} CACHE BOOL "")
+    set(RUNTIMES_${target}_LIBCXX_ENABLE_STATIC                      ${TOOLCHAIN_STATIC_LIBS} CACHE BOOL "")
+  endif()
+  
+  if (DEFINED TOOLCHAIN_USE_STATIC_LIBS)
+    set(RUNTIMES_${target}_LIBCXXABI_ENABLE_STATIC_UNWINDER          ${TOOLCHAIN_USE_STATIC_LIBS} CACHE BOOL "")
+    # Merge libc++ and libc++abi libraries into the single libc++ library file.
+    set(RUNTIMES_${target}_LIBCXX_ENABLE_STATIC_ABI_LIBRARY          ${TOOLCHAIN_USE_STATIC_LIBS} CACHE BOOL "")
+  endif()
+
   # Forcely disable the libc++ benchmarks on Windows build hosts
   # (current benchmark test configuration does not support the cross builds there).
   if (WIN32)

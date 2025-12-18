@@ -42,6 +42,8 @@ echo "%%% cmake_rootfs_args: ${cmake_rootfs_args[@]}"
 # options such as $cmake_extra_compiler_args => "-Xclang -fptrauth-elf-got" (it splits it to 
 # two arguments: '"-Xclang' and '-fptrauth-elf-got"'.
 
+echo "%%% STATIC_RUNTIMES_ONLY: ${STATIC_RUNTIMES_ONLY:-0}"
+
 cmake_args=$(cat <<EOL
     -G Ninja \
     -S "$LLVM_SOURCE_DIR/llvm"
@@ -60,6 +62,9 @@ cmake_args=$(cat <<EOL
     ${cmake_extra_compiler_args}
     ${cmake_rootfs_args}
     -DTOOLCHAIN_TARGET_TRIPLE="$target_list"
+    -DTOOLCHAIN_SHARED_LIBS=$(if_then_else "${STATIC_RUNTIMES_ONLY:-0}" "OFF" "ON")
+    -DTOOLCHAIN_STATIC_LIBS=ON
+    -DTOOLCHAIN_USE_STATIC_LIBS=$(if_then_else "${STATIC_RUNTIMES_ONLY:-0}" "ON" "OFF")
     -C "$CMAKE_DIR/cross-linux-toolchain.cmake"
 EOL
 )

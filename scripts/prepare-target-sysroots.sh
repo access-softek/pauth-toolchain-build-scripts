@@ -18,6 +18,8 @@ echo "+++ Removing existing sysroots at $INSTALL_DIR ..."
 # Installing musl/libc headers
 LIBC_STARTFILE_STAGE=1 ./scripts/build-musl.sh
 # Prepapre the cross toolchain to build the target musl libc libraries.
-./scripts/build-toolchain.sh
+#Note: we need to build toolchain only with the static runtime libraries here.
+# The shared libraries require libc.so module, which is not ready yet.
+STATIC_RUNTIMES_ONLY=1 ./scripts/build-toolchain.sh
 # Build and install the libc libraries
 ./scripts/build-musl.sh
