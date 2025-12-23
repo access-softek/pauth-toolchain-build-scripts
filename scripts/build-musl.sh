@@ -36,10 +36,12 @@ for target in $targets; do
 
     make -f "$MUSL_SOURCE_DIR/Makefile" ARCH=aarch64 srcdir="$MUSL_SOURCE_DIR" prefix="$target_prefx" install-headers
   else
-    opt_cflags="$(if_then_else ${BUILD_OPTIMIZED_RUNTIMES:-0} "" "-O0")"
-    CFLAGS="--target=$target $TARGET_COMMON_CFLAGS $opt_cflags"
-    export CFLAGS
     export CC="${TOOLCHAIN_ROOT}/bin/clang"
+
+    resource_dir=$($CC --target=$target -print-resource-dir)
+    opt_cflags="$(if_then_else ${BUILD_OPTIMIZED_RUNTIMES:-0} "" "-O0")"
+    CFLAGS="--target=$target -isystem ${resource_dir}/include $TARGET_COMMON_CFLAGS $opt_cflags"
+    export CFLAGS
 
     echo "%%% print-resource-dir: $($CC --target=$target -print-resource-dir)"
     echo "%%% print-libgcc-file-name: $($CC --target=$target -print-libgcc-file-name)"
