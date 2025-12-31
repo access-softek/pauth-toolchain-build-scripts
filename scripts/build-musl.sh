@@ -36,7 +36,7 @@ for target in $targets; do
 
     make -f "$MUSL_SOURCE_DIR/Makefile" ARCH=aarch64 srcdir="$MUSL_SOURCE_DIR" prefix="$target_prefx" install-headers
   else
-    export CC="${TOOLCHAIN_ROOT}/bin/clang"
+    export CC="${TOOLCHAIN_ROOT}/bin/$target-clang"
 
     resource_dir=$($CC --target=$target -print-resource-dir)
     opt_cflags="$(if_then_else ${BUILD_OPTIMIZED_RUNTIMES:-0} "" "-O0")"

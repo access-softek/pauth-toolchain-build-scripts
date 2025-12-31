@@ -72,3 +72,7 @@ EOL
 echo "$cmake_args" | xargs $ROOT/scripts/cmake_call.sh
 
 $ROOT/scripts/cmake_call.sh --build . --target install
+
+for target in $targets; do
+  ln -s clang bin/$target-clang
+done
