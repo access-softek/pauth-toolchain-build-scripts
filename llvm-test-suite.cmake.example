@@ -23,10 +23,17 @@ string(APPEND ldflags " -Wl,--dynamic-linker,/opt/llvm-pauth/aarch64-linux-pauth
 # Improves quality of analysis done by BOLT gadget scanner.
 string(APPEND ldflags " -Wl,--emit-relocs")
 
-set(CMAKE_C_FLAGS   "${allflags} ${cflags}" CACHE STRING "")
-set(CMAKE_CXX_FLAGS "${allflags} ${cflags}" CACHE STRING "")
-set(CMAKE_EXE_LINKER_FLAGS    "${allflags} ${ldflags}" CACHE STRING "")
-set(CMAKE_MODULE_LINKER_FLAGS "${allflags} ${ldflags}" CACHE STRING "")
-set(CMAKE_SHARED_LINKER_FLAGS "${allflags} ${ldflags}" CACHE STRING "")
+set(CMAKE_C_FLAGS             "${allflags} ${cflags}"  CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS           "${allflags} ${cflags}"  CACHE STRING "" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS    "${allflags} ${ldflags}" CACHE STRING "" FORCE)
+set(CMAKE_MODULE_LINKER_FLAGS "${allflags} ${ldflags}" CACHE STRING "" FORCE)
+set(CMAKE_SHARED_LINKER_FLAGS "${allflags} ${ldflags}" CACHE STRING "" FORCE)
+
+# The *_RELEASE options are appended to the command line after the generic ones.
+set(CMAKE_C_FLAGS_RELEASE             "${allflags} ${cflags}"  CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE           "${allflags} ${cflags}"  CACHE STRING "" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE    "${allflags} ${ldflags}" CACHE STRING "" FORCE)
+set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${allflags} ${ldflags}" CACHE STRING "" FORCE)
+set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${allflags} ${ldflags}" CACHE STRING "" FORCE)
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
