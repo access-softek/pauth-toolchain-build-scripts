@@ -7,6 +7,17 @@ The resulting toolchain is written to `./output/llvm-pauth.squashfs` - it is a
 compressed read-only file system image which is intended to be `mount`ed to
 `/opt/llvm-pauth`.
 
+Another option is building the toolchain without containers, purely on the host,
+but keep in mind that Clang is able to auto-discover system-provided sysroots
+for cross-compilation (for example, the sysroot under `/usr/aarch64-linux-gnu`
+which is installed as a dependency of the `gcc-aarch64-linux-gnu` package in
+Ubuntu running on x86_64 host). This is hopefully not an issue for these scripts,
+as they explicitly specify the sysroots in Clang `*.cfg` files, and everything
+compiles successfully in x86_64 containerized build. Anyway, containerized
+builds (especially, when performed on a non-AArch64 host) look like yet another
+layer of protection against unintentionally linking to any system-provided
+libraries.
+
 The versions of LLVM and Musl as well as a few other tunables are set in `config`:
 by default, mainline `llvmorg-21.1.0-rc1` tag is used together with a patched
 version of Musl that can be obtained at https://github.com/access-softek/musl.
@@ -25,25 +36,25 @@ not checked whether the working copy is clean or not.
 Ensure `llvm-project` and `musl` repositories are cloned on the host and contain
 the commits specified in the `./config` file (by default, you need the mainline
 LLVM monorepo and patched Musl version from https://github.com/access-softek/musl).
-Alternatively, you can pass https:// or git:// URLs directly to `./docker.sh sources`.
+Alternatively, you can pass https:// or git:// URLs directly to `./build.sh sources`.
 
 Checkout the particular commits of LLVM and Musl sources under `./src` and
 download Linux kernel tarball by running:
 
 ```
-./docker.sh sources <llvm_repo_url> <musl_repo_url>
+./build.sh sources <llvm_repo_url> <musl_repo_url>
 ```
 
 if LLVM and Musl are already cloned on the host, use
 
 ```
-./docker.sh sources file:///absolute/path/to/llvm-project file:///absolute/path/to/musl
+./build.sh sources file:///absolute/path/to/llvm-project file:///absolute/path/to/musl
 ```
 
 Then build the toolchain by running
 
 ```
-./docker.sh build
+./build.sh build
 ```
 
 The build artifact is `./output/llvm-pauth.squashfs` file.
@@ -118,3 +129,44 @@ $ gdb-multiarch
 >>> b main
 >>> c
 ```
+
+# Building the toolchain without Docker
+
+The preferred way to use these scripts is building inside a container, though
+it is possible to build the toolchain purely on the host.
+
+This can be achieved by running `./build.sh host-build` instead of
+`./build.sh build` after checking out the sources to `./src/*` the same way as
+for a containerized build. After a successful build, the toolchain is installed
+to the `./inst` subdirectory inside this repository (can be customized in
+`./config`) and no archive is created under `./output`.
+
+When the toolchain is being built inside a container, a temporary volume is
+attached as a build directory, which is discarded when the container is stopped,
+thus the subsequent invocation of `./build.sh build` uses a fresh build directory
+automatically. When building on the host, on the other hand, the user is
+responsible for removing the half-built subdirectories of the main build
+directory after investigating the errors.
+
+Inside the main build directory (which is `./build` by default), each build step
+corresponds to `{build step}-{target triple}` subdirectory (it depends on the
+particular build step, whether this subdirectory is created or not) and a
+corresponding stamp file with `.stamp` suffix (which is always created **after**
+the build step finishes successfully):
+* the step is skipped if corresponding stamp file exists (whether the directory
+  exists or not)
+* an error is reported if a half-built subdirectory exists without a stamp file
+  indicating a successful build
+* otherwise, a build step is performed and the stamp file is `touch`ed on
+  success
+
+Please note that each step is performed without taking the dependencies into
+account, thus the user is responsible for removing the subdirectories
+corresponding to the steps that have to be redone after some other steps (such
+as rebuilding everything linking to `crt1.o` after the start files were
+rebuilt). It is generally possible to simply remove the entire `./build` and
+`./inst` subdirectories, since LLVM should be rebuilt rather quickly thanks to
+ccache - the main reason for not removing `./build` automatically, aside from
+simplifying the debugging in case of errors, is not to run `rm -rf` with
+computed paths, as this can be harmful to the host system in case of
+misconfiguration.

@@ -2,8 +2,10 @@
 set -e
 
 # This script invokes all other build-*.sh scripts.
-# Inside the container, it is called by build-in-docker.sh.
-# FIXME: Add another entry point script to perform build directly on host.
+# It is called either by build-in-docker.sh or by build-on-host.sh, depending
+# on whether the build is performed inside a container.
+# The calling script is responsible for `export`ing REPO_ROOT environment
+# variable (as explained in ./global-vars).
 
 set -x
 cd "$(dirname "$0")"

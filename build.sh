@@ -4,12 +4,6 @@ ROOT="$(dirname "$0")"
 ROOT="$(realpath "$ROOT")"
 cd "$ROOT"
 
-# Path inside the container.
-REPO_ROOT=/repo
-
-. ./config
-. ./scripts/global-vars
-
 check_repo_sha() {
   local repo_path="$1"
   local expected_sha="$2"
@@ -27,6 +21,9 @@ check_repo_sha() {
 }
 
 fetch_sources() {
+  . ./config
+  . ./scripts/global-vars
+
   if [ "$#" != 2 ]; then
     echo "Usage: docker.sh sources <llvm_repo_url> <musl_repo_url>"
     echo "Note that file:///path/to/repo/ URLs can be used."
@@ -48,7 +45,12 @@ fetch_sources() {
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
 }
 
-build_toolchain() {
+build_in_docker() {
+  # Path inside the container.
+  REPO_ROOT=/repo
+  . ./config
+  . ./scripts/global-vars
+
   check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
 
@@ -66,6 +68,17 @@ build_toolchain() {
       "$DOCKER_IMAGE_NAME" "$REPO_ROOT/scripts/build-in-docker.sh"
 }
 
+build_on_host() {
+  REPO_ROOT="$ROOT"
+  . ./config
+  . ./scripts/global-vars
+
+  check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
+  check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
+
+  ./scripts/build-on-host.sh
+}
+
 main() {
   local subcmd="$1"
 
@@ -75,11 +88,14 @@ main() {
     fetch_sources "$@"
   ;;
   build)
-    build_toolchain
+    build_in_docker
+  ;;
+  host-build)
+    build_on_host
   ;;
   *)
     echo "Unknown subcommand: $subcmd"
-    echo "Expected: 'sources', 'build'."
+    echo "Expected one of 'sources', 'build', or 'host-build' (experimental)."
     exit 1
   ;;
   esac

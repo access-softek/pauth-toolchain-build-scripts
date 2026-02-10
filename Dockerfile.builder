@@ -22,6 +22,8 @@ RUN    apt-get update \
 
 ARG REPO_ROOT
 
+ENV TOOLCHAIN_BUILD_IN_DOCKER=1
+
 COPY cmake   /${REPO_ROOT}/cmake
 COPY scripts /${REPO_ROOT}/scripts
 COPY config  /${REPO_ROOT}
