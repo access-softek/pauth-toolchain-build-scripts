@@ -92,7 +92,7 @@ build_in_docker() {
       --volume "$ROOT/output:$OUTPUT_DIR:rw" \
       --volume "$ROOT/ccache:$CCACHE_DIR:rw" \
       --volume "$ROOT/src:$SRC_DIR:ro" \
-      --tmpfs "$INSTALL_DIR:rw,exec,size=2G" \
+      --tmpfs "$DOCKER_BUILD_INSTALL_DIR:rw,exec,size=2G" \
       --tmpfs "$BUILD_TMP:rw,exec,size=5G" \
       "$DOCKER_IMAGE_NAME" "$REPO_ROOT/scripts/build-in-docker.sh"
 }
@@ -101,6 +101,7 @@ build_on_host() {
   REPO_ROOT="$ROOT"
   . ./config
   . ./scripts/global-vars
+  export INSTALL_DIR="$HOST_BUILD_INSTALL_DIR"
 
   check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
