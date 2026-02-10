@@ -4,3 +4,4 @@ ccache*/
 .build*/
 /src/
 /inst/
+/tmp/
