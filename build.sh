@@ -66,12 +66,24 @@ fetch_sources() {
   fetch_git_commit "$ROOT/src/llvm" "$llvm_repo" "$LLVM_BRANCH" "$LLVM_SHA"
   fetch_git_commit "$ROOT/src/musl" "$musl_repo" "$MUSL_BRANCH" "$MUSL_SHA"
 
-  local SOURCE_TARBALL=linux-$LINUX_KERNEL_VERSION.tar.xz
-  curl -sSL "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_KERNEL_VERSION%%.*}.x/$SOURCE_TARBALL" \
-       -o "$ROOT/src/$SOURCE_TARBALL"
+  local LOCAL_TARBALL_PATH="$ROOT/src/$LINUX_KERNEL_TARBALL_BASENAME"
+  if [ ! -f "$LOCAL_TARBALL_PATH" ]; then
+    echo "Missing $LOCAL_TARBALL_PATH, downloading from $LINUX_KERNEL_TARBALL_URL..."
+    curl -sSL "$LINUX_KERNEL_TARBALL_URL" -o "$LOCAL_TARBALL_PATH"
+  fi
 
   check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
+
+  local computed_sha256="$(sha256sum "$LOCAL_TARBALL_PATH" | sed 's/[ \t].*$//')"
+  if [ "$computed_sha256" = "$LINUX_KERNEL_SHA256" ]; then
+    echo "Checked SHA256 of $LOCAL_TARBALL_PATH"
+  else
+    echo "Unexpected SHA256 of $LOCAL_TARBALL_PATH:"
+    echo "  expected: $LINUX_KERNEL_SHA256"
+    echo "  computed: $computed_sha256"
+    exit 1
+  fi
 }
 
 build_in_docker() {
