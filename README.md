@@ -102,6 +102,41 @@ Hello world!
 Please note that is Musl, the `libc.so` shared object is both the C library to
 link your executables to as well as the dynamic loader.
 
+As explained in the output of `qemu-aarch64 --help`, one may define `QEMU_CPU`
+environment variable to adjust emulated CPU features. For example,
+
+```
+QEMU_CPU="neoverse-v1,pauth-impdef=on" ./hello-world
+```
+
+would emulate a CPU core not implementing FEAT_FPAC. Furthermore,
+`pauth-impdef=on` makes QEMU use an implementation-defined hashing algorithm,
+which is not cryptographically-secure but is much faster to emulate
+(`pauth-impdef=on` was [made the default](https://gitlab.com/qemu-project/qemu/-/commit/132f8ec799cea261ad6b60ac8ae86f17cc98b9a1)
+recently).
+
+# Running llvm-test-suite
+
+One can use example `llvm-test-suite.cmake.example` CMake cache file the same
+way as other cache files from llvm-test-suite (located under `/cmake/caches`).
+
+Furthermore, `lit.cfg` file in the root of llvm-test-suite repository has to be
+patched like this:
+
+```
+--- a/lit.cfg
++++ b/lit.cfg
+@@ -25,6 +25,8 @@ config.traditional_output = False
+ config.single_source = False
+ if "SSH_AUTH_SOCK" in os.environ:
+     config.environment["SSH_AUTH_SOCK"] = os.environ["SSH_AUTH_SOCK"]
++config.environment["QEMU_LD_PREFIX"] = "/opt/llvm-pauth/aarch64-linux-pauthtest/usr"
++config.environment["QEMU_CPU"] = "neoverse-v1,pauth-impdef=on"
+ if not hasattr(config, "remote_host"):
+     config.remote_host = ""
+ config.remote_host = lit_config.params.get("remote_host", config.remote_host)
+```
+
 # Cross-debugging with qemu-user and GDB
 
 To debug a program for a different CPU architecture, a special GDB build may be
