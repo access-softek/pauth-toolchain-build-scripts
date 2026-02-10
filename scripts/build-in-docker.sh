@@ -12,6 +12,15 @@ export REPO_ROOT="$(pwd)/.."
 . ./global-vars
 export INSTALL_DIR="$DOCKER_BUILD_INSTALL_DIR"
 
+on_exit() {
+  # Print usage statistics for Docker volumes mounted into this container.
+  # Omit several unrelated mount points for readability.
+  df -h | grep -vE ' /(dev|etc|proc|sys)'
+}
+# Unconditionally print the statistics - whether the script terminates normally
+# or due to a subcommand error (as requested by "set -e").
+trap on_exit EXIT
+
 if ! ./build-all.sh; then
   echo "Containerized build failed - $BUILD_TMP is discarded automatically."
   exit 1
