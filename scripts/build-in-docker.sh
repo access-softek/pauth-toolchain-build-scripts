@@ -22,7 +22,13 @@ on_exit() {
 trap on_exit EXIT
 
 if ! ./build-all.sh; then
-  echo "Containerized build failed - $BUILD_TMP is discarded automatically."
+  set +x
+  echo 1>&2
+  echo "Containerized build failed." 1>&2
+  echo "Starting an emergency shell, so that you can analyze the issue..." 1>&2
+  echo "Note: the entire $BUILD_TMP will be discarded as soon as you exit this shell!" 1>&2
+  echo 1>&2
+  bash -i
   exit 1
 fi
 
