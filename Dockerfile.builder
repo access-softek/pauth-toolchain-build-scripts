@@ -22,6 +22,9 @@ RUN    apt-get update \
 
 ARG REPO_ROOT
 
+ARG UID=1000
+RUN useradd -u ${UID} builder
+
 COPY cmake   /${REPO_ROOT}/cmake
 COPY scripts /${REPO_ROOT}/scripts
 COPY config  /${REPO_ROOT}

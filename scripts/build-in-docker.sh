@@ -2,6 +2,10 @@
 set -xe
 cd "$(dirname "$0")"
 
+if [ "$1" != "no-switch-user" ]; then
+  exec su builder -c "$0 no-switch-user"
+fi
+
 # This script is an entry point inside the Docker container.
 # Its location is expected to be $REPO_ROOT/scripts/build-in-docker.sh.
 

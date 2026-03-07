@@ -95,10 +95,22 @@ build_in_docker() {
   check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
 
+  # Try creating a non-privileged user inside the container with the same UID
+  # as the UID of the real user to ensure ./ccache and ./output are writable
+  # without sudo on the host - this is useful to make sure ccache does not
+  # silently fall back to non-cached rebuilds in the 'host-build' mode of build.sh.
+  local UID
+  if [ "x$SUDO_USER" != "x" ]; then
+    UID="$(id -u "$SUDO_USER")"
+  else
+    UID="$(id -u)"
+  fi
+
   $DOCKER_CMD build \
       -t "$DOCKER_IMAGE_NAME" \
       -f Dockerfile.builder \
       --build-arg REPO_ROOT="$REPO_ROOT" \
+      --build-arg UID="$UID" \
       "$ROOT"
   $DOCKER_CMD run -ti --rm \
       --volume "$ROOT/output:$OUTPUT_DIR:rw" \
