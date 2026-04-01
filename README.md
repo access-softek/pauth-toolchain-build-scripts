@@ -222,3 +222,31 @@ ninja check-profile
 Not all test cases currently pass, nevertheless this environment is basically
 usable to evaluate the changes to these libraries against their regression
 test suites.
+
+## Browsing source code of run-time libraries in IDE
+
+As building the run-time libraries requires more complicated configuration than
+for building the compiler itself, the same is true for browsing the source code
+of these libraries in `clangd`-based IDEs.
+
+Thanks to non-containerized build mode, one can prepare usable build directories
+with compilation databases on the host system. Then the `compile_commands.json`
+file can be symlinked to the corresponding source directory enabling the
+correct code navigation in `clangd`:
+
+```bash
+./build.sh sources ... # Fetch sources to ./src/musl and ./src/llvm
+./build.sh host-build  # Perform the build under ./build/ and install the
+                       # results to ./inst/. This generates compile_commands.json
+                       # files in various subdirectories of ./build.
+
+# Create symlinks for some subprojects
+ln -sr build/runtimes-aarch64-linux-pauthtest/compile_commands.json src/llvm/libunwind
+ln -sr build/compiler-rt-full-aarch64-linux-pauthtest/compile_commands.json src/llvm/compiler-rt
+```
+
+Known issues of this approach:
+* make sure not to lose your code changes when switching the commits by `./build.sh sources ...`
+* `clangd` may accidentally switch to the wrong source tree when files from both
+  the temporary `./src/llvm/` checkout and your regular working copy gets
+  opened in the same instance of `clangd`.
