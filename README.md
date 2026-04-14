@@ -205,3 +205,20 @@ ccache - the main reason for not removing `./build` automatically, aside from
 simplifying the debugging in case of errors, is not to run `rm -rf` with
 computed paths, as this can be harmful to the host system in case of
 misconfiguration.
+
+## Testing run-time libraries
+
+It is possible to make use of the build directories configured during a
+non-containerized build to execute the tests of run-time libraries.
+On an x86_64 host, this requires qemu-user to be installed.
+
+```bash
+./build.sh sources ...
+./build.sh host-build
+cd build/compiler-rt-full-aarch64-linux-pauthtest
+ninja check-profile
+```
+
+Not all test cases currently pass, nevertheless this environment is basically
+usable to evaluate the changes to these libraries against their regression
+test suites.
