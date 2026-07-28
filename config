@@ -11,7 +11,8 @@ LLVM_SHA=a832a5222e489298337fbb5876f8dcaf072c5cca
 MUSL_SHA=b37ee52aff13880884a7afa8c5161a4f4f7e0236
 
 # Extra flags to write to Clang config files as the defaults.
-EXTRA_FLAGS_PAUTHTEST="-Xclang -fptrauth-elf-got"
+EXTRA_FLAGS_COMMON=""
+EXTRA_FLAGS_PAUTHTEST="-fptrauth-elf-got"
 EXTRA_FLAGS_MUSL=""
 
 ### Other variables ###

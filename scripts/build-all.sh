@@ -16,10 +16,12 @@ set +x
 write_clang_config_files() {
   cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-pauthtest.cfg" <<EOF
 --sysroot <CFGDIR>/../aarch64-linux-pauthtest
+$EXTRA_FLAGS_COMMON
 $EXTRA_FLAGS_PAUTHTEST
 EOF
   cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-musl.cfg" <<EOF
 --sysroot <CFGDIR>/../aarch64-linux-musl
+$EXTRA_FLAGS_COMMON
 $EXTRA_FLAGS_MUSL
 EOF
 }
