@@ -106,6 +106,19 @@ build_in_docker() {
     UID="$(id -u)"
   fi
 
+  local rw_dir
+  for rw_dir in "$ROOT/output" "$ROOT/ccache" "$ROOT/tmp"; do
+    # Make sure $rw_dir is not created by `docker run`, otherwise it may
+    # end up being only writable by the root user.
+    mkdir -p "$rw_dir"
+    # Ignore "Permission denied" errors if our non-privileged user is allowed
+    # to execute `docker` without sudo - in that case `./build.sh build` does
+    # not otherwise require elevating its privileges explicitly, but `chown`
+    # may fail. Assuming that the $rw_dir was created by the above `mkdir`
+    # command, the ownership is already correct, thus ignore failed `chown`.
+    chown $UID:$UID "$rw_dir" || true
+  done
+
   $DOCKER_CMD build \
       -t "$DOCKER_IMAGE_NAME" \
       -f Dockerfile.builder \
