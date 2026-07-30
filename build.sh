@@ -101,6 +101,7 @@ build_in_docker() {
   # silently fall back to non-cached rebuilds in the 'host-build' mode of build.sh.
   local UID
   if [ "x$SUDO_USER" != "x" ]; then
+    # SUDO_USER is set by `sudo` ("login name of the user who invoked sudo").
     UID="$(id -u "$SUDO_USER")"
   else
     UID="$(id -u)"
