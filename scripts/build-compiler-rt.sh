@@ -5,6 +5,7 @@ cd "$(dirname "$0")"
 . ./global-vars
 
 COMPILER_RT_INSTALL_PREFIX="$("$INSTALL_DIR/bin/clang" --print-resource-dir)"
+normalized_triple="$("$INSTALL_DIR/bin/clang" -target $CROSS_TARGET --print-target-triple)"
 
 # Assertion: COMPILER_RT_INSTALL_PREFIX should be under INSTALL_DIR.
 rel_install_prefix="$(realpath --relative-to="$INSTALL_DIR" "$COMPILER_RT_INSTALL_PREFIX")"
@@ -26,5 +27,12 @@ cmake \
   -DCMAKE_INSTALL_PREFIX="$COMPILER_RT_INSTALL_PREFIX" \
   -C "$CMAKE_DIR/compiler-rt-common.cmake" \
   -C "$CMAKE_DIR/compiler-rt-${COMPILER_RT_BUILD}.cmake"
+
+# Provide the run-time libraries to link the test executables.
+mkdir -p "${BUILD_DIR}/lib/${normalized_triple}"
+ln -sr "${COMPILER_RT_INSTALL_PREFIX}/lib/${normalized_triple}/clang_rt.crtbegin.o" \
+       "${COMPILER_RT_INSTALL_PREFIX}/lib/${normalized_triple}/clang_rt.crtend.o" \
+       "${COMPILER_RT_INSTALL_PREFIX}/lib/${normalized_triple}/libclang_rt.builtins.a" \
+       "${BUILD_DIR}/lib/${normalized_triple}"
 
 cmake --build "$BUILD_DIR" --target install -- -j$CPU_COUNT
