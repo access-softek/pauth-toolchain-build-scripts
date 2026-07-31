@@ -82,6 +82,9 @@ build_target_libs() {
   COMPILER_RT_BUILD=full     try_build compiler-rt-full ./build-compiler-rt.sh
 }
 
+# Ask CMake to generate compile_commands.json.
+export CMAKE_EXPORT_COMPILE_COMMANDS=1
+
 CROSS_TARGET="all" try_build llvm ./build-llvm.sh
 
 write_clang_config_files
