@@ -59,6 +59,12 @@ Then build the toolchain by running
 
 The build artifact is `./output/llvm-pauth.squashfs` file.
 
+The build scripts try to detect the UID of the real user running `./build.sh`
+in case this script is executed with `sudo` to make the contents of `./output`
+and `./ccache` directories writable without `sudo` by the host user. This is
+especially useful to prevent the `host-build` performed with the same `./ccache`
+directory from silently falling back to non-cached build.
+
 # Using the toolchain
 
 Mount the produced SquashFS image at `/opt/llvm-pauth`:

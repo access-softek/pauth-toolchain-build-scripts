@@ -95,10 +95,36 @@ build_in_docker() {
   check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
   check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
 
+  # Try creating a non-privileged user inside the container with the same UID
+  # as the UID of the real user to ensure ./ccache and ./output are writable
+  # without sudo on the host - this is useful to make sure ccache does not
+  # silently fall back to non-cached rebuilds in the 'host-build' mode of build.sh.
+  local UID
+  if [ "x$SUDO_USER" != "x" ]; then
+    # SUDO_USER is set by `sudo` ("login name of the user who invoked sudo").
+    UID="$(id -u "$SUDO_USER")"
+  else
+    UID="$(id -u)"
+  fi
+
+  local rw_dir
+  for rw_dir in "$ROOT/output" "$ROOT/ccache" "$ROOT/tmp"; do
+    # Make sure $rw_dir is not created by `docker run`, otherwise it may
+    # end up being only writable by the root user.
+    mkdir -p "$rw_dir"
+    # Ignore "Permission denied" errors if our non-privileged user is allowed
+    # to execute `docker` without sudo - in that case `./build.sh build` does
+    # not otherwise require elevating its privileges explicitly, but `chown`
+    # may fail. Assuming that the $rw_dir was created by the above `mkdir`
+    # command, the ownership is already correct, thus ignore failed `chown`.
+    chown $UID:$UID "$rw_dir" || true
+  done
+
   $DOCKER_CMD build \
       -t "$DOCKER_IMAGE_NAME" \
       -f Dockerfile.builder \
       --build-arg REPO_ROOT="$REPO_ROOT" \
+      --build-arg UID="$UID" \
       "$ROOT"
   $DOCKER_CMD run -ti --rm \
       --volume "$ROOT/output:$OUTPUT_DIR:rw" \
