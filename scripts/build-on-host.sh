@@ -6,11 +6,8 @@ cd "$(dirname "$0")"
 # containeraized build.
 # Its location is expected to be $REPO_ROOT/scripts/build-on-host.sh.
 
-# Export the REPO_ROOT variable, so it can be used by the 'global-vars' script
-# sourced by this script, as well as its subprocesses.
-export REPO_ROOT="$(pwd)/.."
-. ../config
-. ./global-vars
+# All global configuration variables are expected to be already exported
+# by the calling ./build.sh script.
 
 ./build-all.sh
 

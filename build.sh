@@ -4,6 +4,16 @@ ROOT="$(dirname "$0")"
 ROOT="$(realpath "$ROOT")"
 cd "$ROOT"
 
+set -x
+. ./scripts/common.inc.sh
+. ./scripts/global-vars.inc.sh
+set_global_variables host_build  "$ROOT"
+set_global_variables docker_host "$ROOT"
+set_global_variables docker
+# Local configuration file may reference the variables defined above.
+. ./config
+set +x
+
 check_repo_sha() {
   local repo_path="$1"
   local expected_sha="$2"
@@ -50,8 +60,8 @@ fetch_git_commit() {
 }
 
 fetch_sources() {
-  . ./config
-  . ./scripts/global-vars
+  # Note: the *_host_build variables referenced by this function are the
+  # same as their *_docker_host counterparts.
 
   if [ "$#" != 2 ]; then
     echo "Usage: docker.sh sources <llvm_repo_url> <musl_repo_url>"
@@ -62,18 +72,18 @@ fetch_sources() {
   local llvm_repo="$1"
   local musl_repo="$2"
 
-  mkdir -p "$ROOT/src"
-  fetch_git_commit "$ROOT/src/llvm" "$llvm_repo" "$LLVM_BRANCH" "$LLVM_SHA"
-  fetch_git_commit "$ROOT/src/musl" "$musl_repo" "$MUSL_BRANCH" "$MUSL_SHA"
+  mkdir -p "$SRC_DIR_host_build"
+  fetch_git_commit "$LLVM_SOURCE_DIR_host_build" "$llvm_repo" "$LLVM_BRANCH" "$LLVM_SHA"
+  fetch_git_commit "$MUSL_SOURCE_DIR_host_build" "$musl_repo" "$MUSL_BRANCH" "$MUSL_SHA"
 
-  local LOCAL_TARBALL_PATH="$ROOT/src/$LINUX_KERNEL_TARBALL_BASENAME"
+  local LOCAL_TARBALL_PATH="$SRC_DIR_host_build/$LINUX_KERNEL_TARBALL_BASENAME"
   if [ ! -f "$LOCAL_TARBALL_PATH" ]; then
     echo "Missing $LOCAL_TARBALL_PATH, downloading from $LINUX_KERNEL_TARBALL_URL..."
     curl -sSL "$LINUX_KERNEL_TARBALL_URL" -o "$LOCAL_TARBALL_PATH"
   fi
 
-  check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
-  check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
+  check_repo_sha "$LLVM_SOURCE_DIR_host_build" "$LLVM_SHA"
+  check_repo_sha "$MUSL_SOURCE_DIR_host_build" "$MUSL_SHA"
 
   local computed_sha256="$(sha256sum "$LOCAL_TARBALL_PATH" | sed 's/[ \t].*$//')"
   if [ "$computed_sha256" = "$LINUX_KERNEL_SHA256" ]; then
@@ -87,37 +97,32 @@ fetch_sources() {
 }
 
 build_in_docker() {
-  # Path inside the container.
-  REPO_ROOT=/repo
-  . ./config
-  . ./scripts/global-vars
-
-  check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
-  check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
+  check_repo_sha "$LLVM_SOURCE_DIR_docker_host" "$LLVM_SHA"
+  check_repo_sha "$MUSL_SOURCE_DIR_docker_host" "$MUSL_SHA"
 
   $DOCKER_CMD build \
       -t "$DOCKER_IMAGE_NAME" \
       -f Dockerfile.builder \
-      --build-arg REPO_ROOT="$REPO_ROOT" \
-      "$ROOT"
+      --build-arg REPO_ROOT="$REPO_ROOT_docker" \
+      "$REPO_ROOT_docker_host"
   $DOCKER_CMD run -ti --rm \
-      --volume "$ROOT/output:$OUTPUT_DIR:rw" \
-      --volume "$ROOT/ccache:$CCACHE_DIR:rw" \
-      --volume "$ROOT/src:$SRC_DIR:ro" \
-      --volume "$ROOT/tmp:/tmp:rw" \
+      --volume "$OUTPUT_DIR_docker_host:$OUTPUT_DIR_docker:rw" \
+      --volume "$CCACHE_DIR_docker_host:$CCACHE_DIR_docker:rw" \
+      --volume "$SRC_DIR_docker_host:$SRC_DIR_docker:ro" \
+      --volume "$REPO_ROOT_docker_host/tmp:/tmp:rw" \
       --tmpfs "$DOCKER_BUILD_INSTALL_DIR:rw,exec,size=2G" \
-      --tmpfs "$BUILD_TMP:rw,exec,size=8G" \
-      "$DOCKER_IMAGE_NAME" "$REPO_ROOT/scripts/build-in-docker.sh"
+      --tmpfs "$BUILD_TMP_docker:rw,exec,size=8G" \
+      "$DOCKER_IMAGE_NAME" "$REPO_ROOT_docker/scripts/build-in-docker.sh"
 }
 
 build_on_host() {
-  REPO_ROOT="$ROOT"
-  . ./config
-  . ./scripts/global-vars
+  set -x
+  reexport_variables host_build
   export INSTALL_DIR="$HOST_BUILD_INSTALL_DIR"
+  set +x
 
-  check_repo_sha "$ROOT/src/llvm" "$LLVM_SHA"
-  check_repo_sha "$ROOT/src/musl" "$MUSL_SHA"
+  check_repo_sha "$LLVM_SOURCE_DIR_host_build" "$LLVM_SHA"
+  check_repo_sha "$MUSL_SOURCE_DIR_host_build" "$MUSL_SHA"
 
   ./scripts/build-on-host.sh
 }
