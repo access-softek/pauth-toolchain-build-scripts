@@ -23,18 +23,22 @@ set_global_variables() {
   local host_repo_root="$2" # Must be empty if purpose is "docker"
 
   local repo_root
+  local ccache_dir
   case "$purpose" in
   host_build)
     repo_root="$host_repo_root"
+    ccache_dir="$repo_root/ccache-host"
   ;;
   docker_host)
     repo_root="$host_repo_root"
+    ccache_dir="$repo_root/ccache-docker"
   ;;
   docker)
     [ "x$host_repo_root" != "x" ] && \
         report_fatal_error "Do not specify host_repo_root with 'docker'."
 
     repo_root="/repo"
+    ccache_dir="$repo_root/ccache-docker"
   ;;
   *)
     report_fatal_error "Expected one of host_build, docker_host, docker."
@@ -45,7 +49,7 @@ set_global_variables() {
 
   eval  REPO_ROOT_$purpose='"$repo_root"'
   eval OUTPUT_DIR_$purpose='"$repo_root/output"'
-  eval CCACHE_DIR_$purpose='"$repo_root/ccache"'
+  eval CCACHE_DIR_$purpose='"$ccache_dir"'
   eval  BUILD_TMP_$purpose='"$repo_root/build"'
 
   eval SRC_DIR_$purpose='"$repo_root/src"'
