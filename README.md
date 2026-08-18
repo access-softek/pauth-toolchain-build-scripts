@@ -2,7 +2,7 @@ This directory contains scripts to build an LLVM PAuth toolchain from scratch.
 
 The sources of LLVM, Musl and Linux kernel are first checked out on host under
 `./src/` and then the toolchain is built inside a Docker container.
-To speed up rebuilds significantly, a `./ccache/` directory is mounted from the host.
+To speed up rebuilds significantly, a `./ccache-docker/` directory is mounted from the host.
 The resulting toolchain is written to `./output/llvm-pauth.squashfs` - it is a
 compressed read-only file system image which is intended to be `mount`ed to
 `/opt/llvm-pauth`.

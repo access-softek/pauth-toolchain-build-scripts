@@ -100,6 +100,14 @@ build_in_docker() {
   check_repo_sha "$LLVM_SOURCE_DIR_docker_host" "$LLVM_SHA"
   check_repo_sha "$MUSL_SOURCE_DIR_docker_host" "$MUSL_SHA"
 
+  # Assuming our non-privileged user is allowed to run `docker` directly, create
+  # the directories like ./output as the regular user before executing `docker run`,
+  # so that their direct contents (such as ./output/llvm-pauth.squashfs) can be
+  # renamed/deleted without `sudo`.
+  mkdir -p "$OUTPUT_DIR_docker_host"
+  mkdir -p "$CCACHE_DIR_docker_host"
+  mkdir -p "$REPO_ROOT_docker_host/tmp"
+
   $DOCKER_CMD build \
       -t "$DOCKER_IMAGE_NAME" \
       -f Dockerfile.builder \
