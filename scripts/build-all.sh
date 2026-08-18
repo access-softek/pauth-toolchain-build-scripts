@@ -4,14 +4,14 @@ set -e
 # This script invokes all other build-*.sh scripts.
 # It is called either by build-in-docker.sh or by build-on-host.sh, depending
 # on whether the build is performed inside a container.
-# The calling script is responsible for `export`ing REPO_ROOT environment
-# variable (as explained in ./global-vars).
+# The caller of this script is responsible for calling `reexport_variables` beforehand.
 
-set -x
 cd "$(dirname "$0")"
-. "$REPO_ROOT/config"
-. ./global-vars
-set +x
+. ./common.inc.sh
+. ../config
+
+# Export for use by child processes.
+export BUILD_OPTIMIZED_RUNTIMES
 
 write_clang_config_files() {
   cat > "$INSTALL_DIR/bin/aarch64-unknown-linux-pauthtest.cfg" <<EOF
@@ -51,8 +51,7 @@ try_build() {
   fi
 
   if [ -d "$build_dir" ]; then
-    echo "Incomplete build directory is found at $build_dir." 1>&2
-    exit 1
+    report_fatal_error "Incomplete build directory is found at $build_dir."
   fi
 
   # Try performing the build step.
@@ -63,9 +62,9 @@ try_build() {
   if "$@"; then
     touch "$stamp_file_name"
   else
-    echo "Execution of '$stamp_prefix' step for '$CROSS_TARGET' failed." 1>&2
-    echo "Please remove incomplete build at '$BUILD_DIR' before restarting the build." 1>&2
-    exit 1
+    report_fatal_error \
+        "Execution of '$stamp_prefix' step for '$CROSS_TARGET' failed." \
+        "Please remove incomplete build at '$BUILD_DIR' before restarting the build."
   fi
 }
 

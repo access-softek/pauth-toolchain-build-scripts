@@ -1,8 +1,7 @@
 #!/usr/bin/env sh
 set -e
 cd "$(dirname "$0")"
-. "$REPO_ROOT/config"
-. ./global-vars
+. ./global-vars.inc.sh
 
 KERNEL_ARCH=arm64
 TARBALL_PATH="$SRC_DIR/$LINUX_KERNEL_TARBALL_BASENAME"

@@ -27,7 +27,7 @@ DOCKER_BUILD_INSTALL_DIR=/opt/llvm-pauth
 
 # This path is used as a final installation prefix when building the toolchain
 # on the host.
-HOST_BUILD_INSTALL_DIR="$REPO_ROOT/inst"
+HOST_BUILD_INSTALL_DIR="$REPO_ROOT_host_build/inst"
 
 # Command to build and run containers on the host: docker, podman, etc.
 DOCKER_CMD=docker

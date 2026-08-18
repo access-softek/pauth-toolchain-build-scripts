@@ -1,8 +1,6 @@
 #!/usr/bin/env sh
 set -e
 cd "$(dirname "$0")"
-. "$REPO_ROOT/config"
-. ./global-vars
 
 cd "$INSTALL_DIR/bin"
 

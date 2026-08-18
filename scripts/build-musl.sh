@@ -1,8 +1,7 @@
 #!/usr/bin/env sh
 set -e
 cd "$(dirname "$0")"
-. "$REPO_ROOT/config"
-. ./global-vars
+. ./common.inc.sh
 
 mkdir "$BUILD_DIR"
 cd "$BUILD_DIR"

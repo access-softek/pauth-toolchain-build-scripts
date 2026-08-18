@@ -1,12 +1,10 @@
 #!/usr/bin/env sh
 set -e
 cd "$(dirname "$0")"
-. "$REPO_ROOT/config"
-. ./global-vars
+. ./common.inc.sh
 
 if [ -d "$TARGET_PREFIX/include/c++" ]; then
-  echo "ERROR: The destination directory already exists: $TARGET_PREFIX/include/c++" 1>&2
-  exit 1
+  report_fatal_error "ERROR: The destination directory already exists: $TARGET_PREFIX/include/c++"
 fi
 
 cmake \

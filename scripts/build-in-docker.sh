@@ -5,11 +5,15 @@ cd "$(dirname "$0")"
 # This script is an entry point inside the Docker container.
 # Its location is expected to be $REPO_ROOT/scripts/build-in-docker.sh.
 
-# Export the REPO_ROOT variable, so it can be used by the 'global-vars' script
-# sourced by this script, as well as its subprocesses.
-export REPO_ROOT="$(pwd)/.."
+# Inside the Docker container, we have a separate process tree, and this script
+# is the top-most process among our build scripts. Thus, perform a subset of
+# global variable initialization, similar to that performed by build.sh.
+. ./common.inc.sh
+. ./global-vars.inc.sh
+set_global_variables docker
 . ../config
-. ./global-vars
+
+reexport_variables docker
 export INSTALL_DIR="$DOCKER_BUILD_INSTALL_DIR"
 
 on_exit() {

@@ -1,8 +1,7 @@
 #!/usr/bin/env sh
 set -e
 cd "$(dirname "$0")"
-. "$REPO_ROOT/config"
-. ./global-vars
+. ./common.inc.sh
 
 COMPILER_RT_INSTALL_PREFIX="$("$INSTALL_DIR/bin/clang" --print-resource-dir)"
 normalized_triple="$("$INSTALL_DIR/bin/clang" -target $CROSS_TARGET --print-target-triple)"
@@ -11,9 +10,9 @@ normalized_triple="$("$INSTALL_DIR/bin/clang" -target $CROSS_TARGET --print-targ
 rel_install_prefix="$(realpath --relative-to="$INSTALL_DIR" "$COMPILER_RT_INSTALL_PREFIX")"
 if [ "${rel_install_prefix#..}" != "${rel_install_prefix}" ]; then
   # Removing an optional '..' prefix yields a different string - path is relative.
-  echo "Expected compiler-rt to be installed under $INSTALL_DIR" 1>&2
-  echo "The path returned by Clang is $COMPILER_RT_INSTALL_PREFIX" 1>&2
-  exit 1
+  report_fatal_error \
+      "Expected compiler-rt to be installed under $INSTALL_DIR" \
+      "The path returned by Clang is $COMPILER_RT_INSTALL_PREFIX"
 fi
 
 cmake \

@@ -19,13 +19,13 @@ layer of protection against unintentionally linking to any system-provided
 libraries.
 
 The versions of LLVM and Musl as well as a few other tunables are set in `config`:
-by default, mainline `llvmorg-21.1.0-rc1` tag is used together with a patched
+by default, a reasonably fresh mainline LLVM version is used together with a patched
 version of Musl that can be obtained at https://github.com/access-softek/musl.
 
 The choice of Linux kernel version is mostly arbitrary: it is only used to
 provide kernel headers to Musl, thus any recent version should work.
 (As this version does not have to be adjusted by the user, it is defined in the
-`scripts/global-vars` file instead.)
+`scripts/global-vars.inc.sh` file instead.)
 
 Please note that while basic sanity check is performed to make sure the
 expected SHA1 hashes are checked out under `./src/llvm` and `./src/musl`, it is
